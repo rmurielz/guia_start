@@ -1,16 +1,60 @@
-# guia_start
+# 🎯 GUIA Start
 
-A new Flutter project.
+App Flutter para gestionar participaciones en ferias comerciales.
 
-## Getting Started
+## 📱 Funcionalidades
 
-This project is a starting point for a Flutter application.
+- ✅ Autenticación con Firebase Auth
+- ✅ Gestión de ferias y ediciones
+- ✅ Registro de participaciones
+- ✅ Control de contactos, ventas y visitantes
+- ✅ Búsqueda de organizadores
+- ✅ Persistencia offline con Firestore
 
-A few resources to get you started if this is your first Flutter project:
+## 🛠️ Stack Tecnológico
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter 3.x
+- Firebase (Auth + Firestore)
+- Provider (Gestión de estado)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📂 Arquitectura
+```
+lib/
+├── models/          # Modelos de datos
+├── repositories/    # Acceso a Firestore
+├── services/        # Auth y Firestore genérico
+├── providers/       # Estado global
+├── screens/         # Pantallas UI
+└── constants/       # Constantes
+```
+
+## 🚀 Instalación
+```bash
+# Clonar
+git clone https://github.com/rmurielz/guia_start.git
+
+# Instalar dependencias
+flutter pub get
+
+# Configurar Firebase
+flutterfire configure
+
+# Ejecutar
+flutter run
+```
+
+## 📝 Progreso
+
+- ✅ Arquitectura base
+- ✅ CRUD completo
+- ✅ Refactoring con `_executeAsync`
+- 🔄 Widget de búsqueda reutilizable (en desarrollo)
+
+## 🔐 Nota de Seguridad
+
+Las credenciales de Firebase (`firebase_options.dart`) no están en el repo.
+Configurar localmente después de clonar.
+
+---
+
+Proyecto de aprendizaje Flutter/Dart
