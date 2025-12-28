@@ -162,33 +162,34 @@ class _FairFormScreenState extends State<FairFormScreen> {
     final userId = _authService.getCurrentUser()?.uid;
     if (userId == null) return;
 
-    setState(() => _isSaving = true);
-
-    try {
-      final fair = Fair(
-        id: '',
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim(),
-        organizerId: _selectedOrganizer!.id,
-        organizerName: _selectedOrganizer!.name,
-        createdBy: userId,
-        createdAt: DateTime.now(),
-        isRecurring: _isRecurring,
-      );
-      final fairId = await _fairRepo.addFair(fair);
-
-      if (fairId != null && mounted) {
-        final createdFair = fair.copyWith(id: fairId);
-        Navigator.pop(context, createdFair);
-      }
-    } catch (e) {
-      setState(() => _isSaving = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al guardar: $e')),
+    await _executeAsync(
+      operation: () async {
+        final newFair = Fair(
+          id: '',
+          name: _nameController.text.trim(),
+          description: _descriptionController.text.trim(),
+          organizerId: _selectedOrganizer!.id,
+          organizerName: _selectedOrganizer!.name,
+          isRecurring: _isRecurring,
+          createdBy: userId,
+          createdAt: DateTime.now(),
         );
-      }
-    }
+
+        final fairId = await _fairRepo.addFair(newFair);
+
+        if (fairId == null || fairId.isEmpty) {
+          throw Exception('Error al crear la feria');
+        }
+
+        if (mounted) {
+          final createdFair = newFair.copyWith(id: fairId);
+          Navigator.of(context).pop(createdFair);
+        }
+      },
+      loadingFlag: 'saving',
+      successMessage: 'Feria creada exitosamente',
+      errorMessage: 'Error al crear la feria',
+    );
   }
 
   @override
