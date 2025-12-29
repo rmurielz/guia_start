@@ -4,6 +4,7 @@ import 'package:guia_start/models/third_party_model.dart';
 import 'package:guia_start/repositories/fair_repository.dart';
 import 'package:guia_start/repositories/third_party_repository.dart';
 import 'package:guia_start/services/auth_service.dart';
+import 'package:guia_start/widgets/searchable_dropdown.dart';
 
 class FairFormScreen extends StatefulWidget {
   const FairFormScreen({super.key});
@@ -20,20 +21,15 @@ class _FairFormScreenState extends State<FairFormScreen> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _organizerSearchController =
-      TextEditingController();
 
   ThirdParty? _selectedOrganizer;
-  List<ThirdParty> _organizerResults = [];
   bool _isRecurring = false;
-  bool _isSearchingOrganizer = false;
   bool _isSaving = false;
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _organizerSearchController.dispose();
     super.dispose();
   }
 
@@ -44,9 +40,7 @@ class _FairFormScreenState extends State<FairFormScreen> {
     String? errorMessage,
   }) async {
     setState(() {
-      if (loadingFlag == 'searching') {
-        _isSearchingOrganizer = true;
-      } else if (loadingFlag == 'saving') {
+      if (loadingFlag == 'saving') {
         _isSaving = true;
       }
     });
@@ -67,86 +61,12 @@ class _FairFormScreenState extends State<FairFormScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          if (loadingFlag == 'searching') {
-            _isSearchingOrganizer = false;
-          } else if (loadingFlag == 'saving') {
+          if (loadingFlag == 'saving') {
             _isSaving = false;
           }
         });
       }
     }
-  }
-
-  Future<void> _searchOrganizers() async {
-    final query = _organizerSearchController.text.trim();
-
-    if (query.isEmpty) return;
-
-    await _executeAsync(
-      operation: () async {
-        final results = await _thirdPartyRepo.searchThirdPartiesByName(query);
-        final organizers =
-            results.where((tp) => tp.type == ThirdPartyType.organizer).toList();
-
-        setState(() {
-          _organizerResults = organizers;
-        });
-      },
-      loadingFlag: 'searching',
-      errorMessage: 'Error al buscar organizadores',
-    );
-  }
-
-  void _selectOrganizer(ThirdParty organizer) {
-    setState(() {
-      _selectedOrganizer = organizer;
-      _organizerSearchController.text = organizer.name;
-      _organizerResults = [];
-    });
-  }
-
-  Future<void> _createNewOrganizer() async {
-    final name = _organizerSearchController.text.trim();
-
-    if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingrese el nombre del organizador')),
-      );
-      return;
-    }
-
-    final userId = _authService.getCurrentUser()?.uid;
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario no autenticado')),
-      );
-      return;
-    }
-    await _executeAsync(
-      operation: () async {
-        final newOrganizer = ThirdParty(
-          id: '',
-          name: name,
-          type: ThirdPartyType.organizer,
-          createdBy: userId,
-          createdAt: DateTime.now(),
-        );
-
-        final organizerId = await _thirdPartyRepo.addThirdParty(newOrganizer);
-
-        if (organizerId == null || organizerId.isEmpty) {
-          throw Exception('Error al crear el organizador');
-        }
-
-        setState(() {
-          _selectedOrganizer = newOrganizer.copyWith(id: organizerId);
-          _organizerResults = [];
-        });
-      },
-      loadingFlag: 'saving',
-      successMessage: 'Organizador creado exitosamente',
-      errorMessage: 'Error al crear el organizador',
-    );
   }
 
   Future<void> _saveFair() async {
@@ -253,72 +173,43 @@ class _FairFormScreenState extends State<FairFormScreen> {
 
             const SizedBox(height: 8.0),
             // Buscador organizador
-            TextFormField(
-              controller: _organizerSearchController,
-              style: TextStyle(color: colorScheme.tertiary),
-              decoration: InputDecoration(
-                labelText: 'Buscar organizador',
-                prefixIcon: const Icon(Icons.business),
-                suffixIcon: _selectedOrganizer != null
-                    ? Icon(Icons.check_circle, color: colorScheme.primary)
-                    : null,
-              ),
-              onChanged: (value) {
-                if (_selectedOrganizer != null) {
-                  setState(() => _selectedOrganizer = null);
-                }
-                _searchOrganizers();
+            SearchableDropdown<ThirdParty>(
+              labelText: 'Buscar Organizador',
+              prefixIcon: Icons.business,
+              selectedItem: _selectedOrganizer,
+              onSearch: (query) async {
+                final results =
+                    await _thirdPartyRepo.searchThirdPartiesByName(query);
+                return results
+                    .where((tp) => tp.type == ThirdPartyType.organizer)
+                    .toList();
               },
-            ),
-
-            // Resultados búsqueda organizador
-            if (_isSearchingOrganizer)
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-
-            if (_organizerResults.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                decoration: BoxDecoration(
-                  border:
-                      Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                constraints: const BoxConstraints(maxHeight: 200),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _organizerResults.length,
-                  itemBuilder: (context, index) {
-                    final organizer = _organizerResults[index];
-                    return ListTile(
-                        dense: true,
-                        title: Text(organizer.name),
-                        subtitle: organizer.contactEmail != null
-                            ? Text(organizer.contactEmail!)
-                            : null,
-                        onTap: () => _selectOrganizer(organizer));
-                  },
-                ),
-              ),
-
-            // Botón Crear Organizador
-            if (_organizerSearchController.text.isNotEmpty &&
-                _selectedOrganizer == null &&
-                _organizerResults.isEmpty &&
-                !_isSearchingOrganizer)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: TextButton.icon(
-                  onPressed: _createNewOrganizer,
-                  icon: const Icon(Icons.add),
-                  label: Text(
-                    'Crear Organizador "${_organizerSearchController.text}"',
-                    overflow: TextOverflow.ellipsis,
+              onSelected: (organizer) {
+                setState(() {
+                  _selectedOrganizer = organizer;
+                });
+              },
+              itemBuilder: (organizer) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    organizer.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14),
                   ),
-                ),
+                  if (organizer.contactEmail != null)
+                    Text(
+                      organizer.contactEmail!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    )
+                ],
               ),
+              displayText: (organizer) => organizer.name,
+              emptyMessage: 'No se encontraron organizadores',
+            ),
 
             const SizedBox(height: 24.0),
 
