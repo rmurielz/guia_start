@@ -63,6 +63,7 @@ class SearchableDropdown<T> extends StatefulWidget {
 
 class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   List<T> _results = [];
   bool _isSearching = false;
   bool _showResults = false;
@@ -73,6 +74,24 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
     // Si hay un elemento seleccionado, mostrar su texto en el controlador
     if (widget.selectedItem != null) {
       _controller.text = widget.displayText(widget.selectedItem!);
+    }
+  }
+
+  @override
+  void didUpdateWidget(SearchableDropdown<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+// si el elemento seleccionado cambió, actualizar el texto del controlador
+    if (widget.selectedItem != oldWidget.selectedItem) {
+      if (widget.selectedItem != null) {
+        _controller.text = widget.displayText(widget.selectedItem!);
+      } else {
+        _controller.clear();
+      }
+      setState(() {
+        _results = [];
+        _showResults = false;
+      });
     }
   }
 
@@ -133,7 +152,7 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Campo de texto para la búsqueda
-        TextField(
+        TextFormField(
           controller: _controller,
           style: TextStyle(color: colorScheme.tertiary),
           decoration: InputDecoration(
@@ -143,6 +162,19 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
             suffixIcon: widget.selectedItem != null
                 ? Icon(Icons.check_circle, color: colorScheme.primary)
                 : null,
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: colorScheme.primary,
+                width: 1.0,
+              ),
+            ),
           ),
           onChanged: (value) {
             // Si había algo seleccionado, limpiarlo al cambiar el texto
