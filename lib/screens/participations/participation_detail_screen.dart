@@ -48,7 +48,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
 
   Future<void> _loadData() async {
     try {
-      final fair = await _fairRepo.getFairById(widget.participation.fairId);
+      final fair = await _fairRepo.getById(widget.participation.fairId);
       final edition =
           await _editionRepo.getEditionById(widget.participation.editionId);
       setState(() {

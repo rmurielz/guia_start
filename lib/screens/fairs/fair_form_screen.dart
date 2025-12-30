@@ -96,7 +96,7 @@ class _FairFormScreenState extends State<FairFormScreen> {
           createdAt: DateTime.now(),
         );
 
-        final fairId = await _fairRepo.addFair(newFair);
+        final fairId = await _fairRepo.add(newFair);
 
         if (fairId == null || fairId.isEmpty) {
           throw Exception('Error al crear la feria');

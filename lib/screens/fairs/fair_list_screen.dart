@@ -169,7 +169,7 @@ class _FairListScreenState extends State<FairListScreen> {
         backgroundColor: colorScheme.primary,
         icon: const Icon(Icons.add, color: Colors.black),
         label: const Text(
-          'Nueva Participación',
+          'Nueva Feria',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
