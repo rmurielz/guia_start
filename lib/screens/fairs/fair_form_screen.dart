@@ -5,6 +5,7 @@ import 'package:guia_start/repositories/fair_repository.dart';
 import 'package:guia_start/repositories/third_party_repository.dart';
 import 'package:guia_start/services/auth_service.dart';
 import 'package:guia_start/widgets/searchable_dropdown.dart';
+import 'package:guia_start/utils/validators.dart';
 
 class FairFormScreen extends StatefulWidget {
   const FairFormScreen({super.key});
@@ -139,9 +140,11 @@ class _FairFormScreenState extends State<FairFormScreen> {
               style: TextStyle(color: colorScheme.tertiary),
               decoration: const InputDecoration(
                   labelText: 'Nombre de Feria', prefixIcon: Icon(Icons.event)),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Campo requerido'
-                  : null,
+              validator: Validators.compose([
+                Validators.required('Campo requerido'),
+                Validators.minLength(3, 'Mínimo 3 caracteres'),
+                Validators.maxLength(50, 'Máximo 50 caracteres'),
+              ]),
             ),
             const SizedBox(height: 16.0),
 
@@ -155,9 +158,10 @@ class _FairFormScreenState extends State<FairFormScreen> {
                 prefixIcon: Icon(Icons.description),
                 alignLabelWithHint: true,
               ),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Campo requerido'
-                  : null,
+              validator: Validators.compose([
+                Validators.required('La descripción es obligatoria'),
+                Validators.minLength(10, 'Mínimo 10 caracteres'),
+              ]),
             ),
             const SizedBox(height: 24.0),
 
