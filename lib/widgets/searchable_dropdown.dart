@@ -16,33 +16,16 @@ import 'package:flutter/material.dart';
 /// )
 /// ```
 class SearchableDropdown<T> extends StatefulWidget {
-  // Etiqueta del campo de búsqueda
   final String labelText;
-
-  // Icono que aparece al inicio del campo de búsqueda
   final IconData? prefixIcon;
-
-  // Elemento seleccionado actualmente
   final T? selectedItem;
-
-  // Función que realiza la búsqueda asíncrona
-  // Recibe el texto de búsqueda y devuelve una lista de resultados
   final Future<List<T>> Function(String query) onSearch;
-
-  // Callback cuando se selecciona un elemento
   final void Function(T? item) onSelected;
-
-  // Constructor del widget para cada item en la lista de resultados
   final Widget Function(T item) itemBuilder;
-
-  // Función para obtener el texto a mostrar del elemento seleccionado
   final String Function(T item) displayText;
-
-  // Mensaje a mostrar cuando no hay resultados
   final String? emptyMessage;
-
-  // Altura máxima del dropdown de resultados
   final double maxDropdownHeight;
+  final Future<T?> Function(String name)? onCreate;
 
   const SearchableDropdown({
     super.key,
@@ -55,6 +38,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     this.selectedItem,
     this.emptyMessage,
     this.maxDropdownHeight = 200,
+    this.onCreate,
   });
 
   @override
@@ -142,6 +126,38 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
       _showResults = false;
     });
     widget.onSelected(item);
+  }
+
+  Future<void> _createNewItem(String name) async {
+    if (widget.onCreate == null) return;
+
+    setState(() {
+      _isSearching = true;
+    });
+
+    try {
+      final newItem = await widget.onCreate!(name);
+
+      if (newItem != null && mounted) {
+        _controller.text = widget.displayText(newItem);
+        setState(() {
+          _results = [];
+          _showResults = false;
+          _isSearching = false;
+        });
+        widget.onSelected(newItem);
+        _focusNode.unfocus();
+      } else {
+        setState(() => _isSearching = false);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSearching = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al crear: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -241,10 +257,26 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
         if (_showResults && !_isSearching && _results.isEmpty)
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              widget.emptyMessage ?? 'No se encontraron resultados.',
-              style: TextStyle(
-                  color: colorScheme.tertiary.withOpacity(0.6), fontSize: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.emptyMessage ?? 'No se encontraron resultados',
+                  style: TextStyle(
+                    color: colorScheme.tertiary.withOpacity(0.6),
+                    fontSize: 14,
+                  ),
+                ),
+                if (widget.onCreate != null && _controller.text.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: OutlinedButton.icon(
+                      onPressed: () => _createNewItem(_controller.text.trim()),
+                      icon: const Icon(Icons.add),
+                      label: Text('Crear "${_controller.text.trim()}"'),
+                    ),
+                  ),
+              ],
             ),
           ),
       ],

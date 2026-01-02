@@ -193,6 +193,24 @@ class _FairFormScreenState extends State<FairFormScreen> {
                   _selectedOrganizer = organizer;
                 });
               },
+              onCreate: (name) async {
+                final userId = _authService.getCurrentUser()?.uid;
+                if (userId == null) throw Exception('Usuario no autenticado');
+
+                final organizer = ThirdParty(
+                  id: '',
+                  name: name,
+                  type: ThirdPartyType.organizer,
+                  createdBy: userId,
+                  createdAt: DateTime.now(),
+                );
+                final id = await _thirdPartyRepo.addThirdParty(organizer);
+
+                if (id == null || id.isEmpty) {
+                  throw Exception('Error al crear el organizador');
+                }
+                return organizer.copyWith(id: id);
+              },
               itemBuilder: (organizer) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
