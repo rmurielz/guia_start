@@ -96,14 +96,14 @@ class _FairFormScreenState extends State<FairFormScreen> {
           createdAt: DateTime.now(),
         );
 
-        final fairId = await _fairRepo.add(newFair);
+        final result = await _fairRepo.add(newFair);
 
-        if (fairId == null || fairId.isEmpty) {
-          throw Exception('Error al crear la feria');
+        if (result.isError) {
+          throw Exception(result.error);
         }
 
         if (mounted) {
-          final createdFair = newFair.copyWith(id: fairId);
+          final createdFair = newFair.copyWith(id: result.data!);
           Navigator.of(context).pop(createdFair);
         }
       },
