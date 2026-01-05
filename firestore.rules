@@ -1,18 +1,54 @@
-rules_version='2'
-
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 12, 3);
-    }
-  }
+  
+  	// Función helper: verificar autenticación
+  	function isSignedIn(){
+ 	 		return request.auth != null;
+  	}
+      
+  	// Función helper: verificar propiedad
+  	function isOwner(){
+  		return isSignedin() && request.auth.uid == userId;
+  	}
+  
+  	// USUARIOS: solo leer/escribir tu propio perfil
+  	match /users/{userId} {
+  		allow read, write: if isOwner(userId);
+  	}
+  
+  	// FERIAS: todos leen, solo creador escrib
+  	match /fairs/{fairId}{
+  		allow read: if isSignedIn();
+    	allow create: if isSignedIn();
+    	allow update, delete: if isOwner(resource.data.createdBy);
+  	}
+  
+  	// EDICIONES: todos leen, solo creador de la feria escribe
+  	match /edtions/{editionId}{
+  		allow read: if isSignedIn();
+    	allow create: if isSignedIn();
+    	allow update, delete: if isSignedIn() && request.auth.uid == resource.data.createdBy
+    	}
+  
+  	// PARTICIPACIONES: solo tus participaciones
+  	match /{participations}/{participationId}{
+  		allow read, write: if isSigendIn() && 
+  		(request.auth.uid == resource.data.userId ||
+     	 request.auth.uid == request.resource.data.userId);
+     
+  	// Subcolecciones (contacts, sales, visitors)
+  	match /{subcollection}/{docId}{
+	  	allow read, write: if isSignedIn() &&
+  	  request.auth.uid == get(/databases/$(database)/documents/participations/$(participationId)).data.userId;
+  		}
+  	}
+  
+  	// TERCEROS: todos leen, solo creador modifica
+  	match /thirdParties/{thirdPartyId}{
+  		allow read: if isSignedIn();
+    	allow create: if isSignedIn();
+    	allow update, delete: if isOwner(resource.data.createdBy)
+  	}
+	}
 }
