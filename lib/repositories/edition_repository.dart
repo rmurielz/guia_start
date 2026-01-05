@@ -25,6 +25,4 @@ class EditionRepository extends BaseRepository<Edition> {
         .streamCollectionWhere(collectionPath, 'fairId', fairId)
         .map((list) => list.map((m) => fromMap(m)).toList());
   }
-
-  Future<String?> addEdition(Edition edition) => add(edition);
 }

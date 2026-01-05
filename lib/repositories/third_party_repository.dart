@@ -25,8 +25,10 @@ class ThirdPartyRepository extends BaseRepository<ThirdParty> {
   }
 
   Future<List<ThirdParty>> searchThirdPartiesByName(String query) async {
-    final all = await getAll();
-    return all
+    final result = await getAll();
+    if (result.isError) return [];
+
+    return result.data!
         .where((tp) => tp.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
   }
@@ -36,6 +38,4 @@ class ThirdPartyRepository extends BaseRepository<ThirdParty> {
         .streamCollectionWhere(collectionPath, 'type', _enumToString(type))
         .map((list) => list.map((m) => fromMap(m)).toList());
   }
-
-  Future<String?> addThirdParty(ThirdParty tp) => add(tp);
 }

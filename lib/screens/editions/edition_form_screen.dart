@@ -90,10 +90,13 @@ class _EditionFormScreenState extends State<EditionFormScreen> {
         status: _status,
       );
 
-      final editionId = await _editionRepo.addEdition(edition);
+      final result = await _editionRepo.add(edition);
 
-      if (editionId != null && mounted) {
-        final createdEdition = edition.copyWith(id: editionId);
+      if (result.isError) {
+        throw Exception(result.error);
+      }
+      if (mounted) {
+        final createdEdition = edition.copyWith(id: result.data);
         Navigator.pop(context, createdEdition);
       }
     } catch (e) {

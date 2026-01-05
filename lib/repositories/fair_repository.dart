@@ -15,11 +15,11 @@ class FairRepository extends BaseRepository<Fair> {
 
   /// Buscar ferias por nombre
   Future<List<Fair>> searchFairByName(String query) async {
-    final all = await getAll();
-    return all
+    final result = await getAll();
+    if (result.isError) return [];
+
+    return result.data!
         .where((f) => f.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
   }
-
-  Future<String?> addFair(Fair fair) => add(fair);
 }

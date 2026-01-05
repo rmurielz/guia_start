@@ -103,7 +103,7 @@ class _FairFormScreenState extends State<FairFormScreen> {
         }
 
         if (mounted) {
-          final createdFair = newFair.copyWith(id: result.data!);
+          final createdFair = newFair.copyWith(id: result.data);
           Navigator.of(context).pop(createdFair);
         }
       },
@@ -204,12 +204,12 @@ class _FairFormScreenState extends State<FairFormScreen> {
                   createdBy: userId,
                   createdAt: DateTime.now(),
                 );
-                final id = await _thirdPartyRepo.addThirdParty(organizer);
+                final result = await _thirdPartyRepo.add(organizer);
 
-                if (id == null || id.isEmpty) {
-                  throw Exception('Error al crear el organizador');
+                if (result.isError) {
+                  throw Exception(result.error);
                 }
-                return organizer.copyWith(id: id);
+                return organizer.copyWith(id: result.data);
               },
               itemBuilder: (organizer) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

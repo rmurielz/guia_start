@@ -8,7 +8,7 @@ abstract class BaseRepository<T> {
   T Function(Map<String, dynamic>) get fromMap;
   Map<String, dynamic> Function(T) get toMap;
 
-  Future<Result<String?>> add(T item) async {
+  Future<Result<String>> add(T item) async {
     try {
       final id =
           await firestoreService.addDocument(collectionPath, toMap(item));
