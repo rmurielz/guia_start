@@ -48,12 +48,17 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
 
   Future<void> _loadData() async {
     try {
-      final fair = await _fairRepo.getById(widget.participation.fairId);
-      final edition =
-          await _editionRepo.getEditionById(widget.participation.editionId);
+      final fairResult = await _fairRepo.getById(widget.participation.fairId);
+      final editionResult =
+          await _editionRepo.getById(widget.participation.editionId);
+
+      if (fairResult.isError || editionResult == null) {
+        throw Exception('Error al cargar los datos');
+      }
+
       setState(() {
-        _fair = fair;
-        _edition = edition;
+        _fair = fairResult.data;
+        _edition = editionResult.data;
         _isLoading = false;
       });
     } catch (e) {
