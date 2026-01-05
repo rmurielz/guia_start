@@ -57,7 +57,7 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
     super.initState();
     // Si hay un elemento seleccionado, mostrar su texto en el controlador
     if (widget.selectedItem != null) {
-      _controller.text = widget.displayText(widget.selectedItem!);
+      _controller.text = widget.displayText(widget.selectedItem as T);
     }
   }
 
@@ -68,7 +68,7 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
 // si el elemento seleccionado cambió, actualizar el texto del controlador
     if (widget.selectedItem != oldWidget.selectedItem) {
       if (widget.selectedItem != null) {
-        _controller.text = widget.displayText(widget.selectedItem!);
+        _controller.text = widget.displayText(widget.selectedItem as T);
       } else {
         _controller.clear();
       }

@@ -9,6 +9,7 @@
 ///   ]),
 /// )
 /// '''
+library;
 
 class Validators {
   /// Valida que el campo no esté vacío.

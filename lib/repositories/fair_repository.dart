@@ -14,10 +14,12 @@ class FairRepository extends BaseRepository<Fair> {
   Map<String, dynamic> Function(Fair) get toMap => (fair) => fair.toMap();
 
   /// Buscar ferias por nombre
-  Future<List<Fair>> searchFairByName(String name) async {
+  Future<List<Fair>> searchFairByName(String query) async {
     final all = await getAll();
     return all
-        .where((fair) => fair.name.toLowerCase().contains(name.toLowerCase()))
+        .where((f) => f.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
   }
+
+  Future<String?> addFair(Fair fair) => add(fair);
 }
