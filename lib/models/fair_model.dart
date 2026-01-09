@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:guia_start/utils/entity.dart';
 
 // Modelo que representa una feria o evento comercial
 
@@ -50,6 +51,7 @@ class Fair {
     );
   }
 
+  @override
   Fair copyWith({
     String? id,
     String? name,
@@ -71,4 +73,18 @@ class Fair {
       createdAt: createdAt ?? this.createdAt,
     );
   }
+
+  @override
+  String toString() {
+    return 'Fair{id: $id, name: $name, organizer: $organizerName)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Fair && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

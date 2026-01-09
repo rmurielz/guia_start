@@ -35,44 +35,29 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
     super.dispose();
   }
 
-  Future<void> _executeAsync({
-    required Future<void> Function() operation,
-    required String loadingFlag, // Searching o Saving
-    String? successMessage,
-    String? errorMessage,
-  }) async {
-    setState(() {
-      if (loadingFlag == 'saving') {
-        _isSaving = true;
-      }
-    });
-
-    try {
-      await operation();
-      if (successMessage != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(successMessage)),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage ?? 'Error al guardar: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          if (loadingFlag == 'saving') {
-            _isSaving = false;
-          }
-        });
-      }
+  Future<Result<Fair>> _createFair() async {
+    final userId = _authService.getCurrentUser()?.uid;
+    if (userId == null) {
+      return Result.error('Usuario no autenticado');
     }
+
+    final newFair = Fair(
+      id: '',
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+      organizerId: _selectedOrganizer!.id,
+      organizerName: _selectedOrganizer!.name,
+      isRecurring: _isRecurring,
+      createdBy: userId,
+      createdAt: DateTime.now(),
+    );
+
+    return await _fairRepo.add(newFair);
   }
 
   Future<void> _saveFair() async {
     if (!_formKey.currentState!.validate()) return;
+
     if (_selectedOrganizer == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Debe seleccionar un organizador')),
@@ -80,36 +65,13 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
       return;
     }
 
-    final userId = _authService.getCurrentUser()?.uid;
-    if (userId == null) return;
-
     await executeOperation<Fair>(
-      operation: _createFair(userId),
+      operation: _createFair(),
       successMessage: 'Feria creada exitosamente',
       onSuccess: () {
         Navigator.of(context).pop();
       },
     );
-
-    Future<Result<Fair>> _createFair(String userId) async {
-      final newFair = Fair(
-        id: '',
-        name: _nameController.text,
-        description: _descriptionController.text,
-        organizerId: _selectedOrganizer!.id,
-        isRecurring: _isRecurring,
-        createdBy: userId,
-        createdAt: DateTime.now(),
-      );
-
-      final result = await _fairRepo.add(newFair);
-
-      if (result.isError) {
-        return Result.error(result.error!);
-      }
-
-      return Result.success(newFair.copyWith(id: result.data));
-    }
   }
 
   @override
@@ -120,10 +82,10 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
       appBar: AppBar(
         backgroundColor: colorScheme.primary,
         title: const Text(
-          'Crear Feria',
+          'Crear una nueva feria',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
@@ -133,12 +95,12 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            // Nombre de Feria
             TextFormField(
               controller: _nameController,
-              style: TextStyle(color: colorScheme.tertiary),
               decoration: const InputDecoration(
-                  labelText: 'Nombre de Feria', prefixIcon: Icon(Icons.event)),
+                labelText: 'Nombre de Feria',
+                prefixIcon: Icon(Icons.event),
+              ),
               validator: Validators.compose([
                 Validators.required('Campo requerido'),
                 Validators.minLength(3, 'Mínimo 3 caracteres'),
@@ -146,8 +108,6 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
               ]),
             ),
             const SizedBox(height: 16.0),
-
-            // Descripción
             TextFormField(
               controller: _descriptionController,
               style: TextStyle(color: colorScheme.tertiary),
@@ -163,8 +123,6 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
               ]),
             ),
             const SizedBox(height: 24.0),
-
-            // Sección organizador
             Text(
               'Organizador',
               style: TextStyle(
@@ -173,9 +131,7 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 8.0),
-            // Buscador organizador
             SearchableDropdown<ThirdParty>(
               labelText: 'Buscar Organizador',
               prefixIcon: Icons.business,
@@ -208,7 +164,7 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
                 if (result.isError) {
                   throw Exception(result.error);
                 }
-                return organizer.copyWith(id: result.data);
+                return result.data!;
               },
               itemBuilder: (organizer) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +172,9 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
                   Text(
                     organizer.name,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   if (organizer.contactEmail != null)
                     Text(
@@ -231,21 +189,15 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
               displayText: (organizer) => organizer.name,
               emptyMessage: 'No se encontraron organizadores',
             ),
-
             const SizedBox(height: 24.0),
-
-            // Checkbox Recurrente
             SwitchListTile(
               value: _isRecurring,
               onChanged: (value) => setState(() => _isRecurring = value),
-              title: const Text('¿Es una feria recurrente?'),
-              subtitle: const Text('Mensual, anual....'),
+              title: const Text('Es una Feria recurrente?'),
+              subtitle: const Text('Mensual, Anual...'),
               activeThumbColor: colorScheme.primary,
             ),
-
             const SizedBox(height: 32.0),
-
-// Botón Guardar
             SizedBox(
               height: 52,
               child: ElevatedButton(

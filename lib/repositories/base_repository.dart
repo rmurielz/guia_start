@@ -1,22 +1,27 @@
 import 'package:guia_start/services/firestore_service.dart';
 import 'package:guia_start/utils/result.dart';
+import 'package:guia_start/utils/entity.dart';
 
-abstract class BaseRepository<T> {
+abstract class BaseRepository<T extends Entity> {
   final FirestoreService firestoreService = FirestoreService();
 
   String get collectionPath;
+
   T Function(Map<String, dynamic>) get fromMap;
+
   Map<String, dynamic> Function(T) get toMap;
 
-  Future<Result<String>> add(T item) async {
+  Future<Result<T>> add(T item) async {
     try {
       final id =
           await firestoreService.addDocument(collectionPath, toMap(item));
-      return id != null
-          ? Result.success(id)
-          : Result.error('No se pudo crear el documento');
+      if (id == null) {
+        return Result.error('No se pudo agregar el documento');
+      }
+      final itemWithId = item.copyWith(id: id) as T;
+      return Result.success(itemWithId);
     } catch (e) {
-      return Result.error('Error al crear $e');
+      return Result.error('Error al agregar: $e');
     }
   }
 

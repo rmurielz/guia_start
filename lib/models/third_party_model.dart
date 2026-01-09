@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:guia_start/utils/entity.dart';
 
 enum ThirdPartyType {
   supplier,
@@ -82,5 +83,39 @@ class ThirdParty {
       createdBy: createdBy ?? this.createdBy,
       createdAt: createdAt ?? this.createdAt,
     );
+  }
+
+  // Retorna una presentación legible del tercero
+  @override
+  String toString() {
+    return 'ThirdParty{id: $id, name: $name, type: ${type.toString().split('.').last})';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ThirdParty && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  String get typeLabel {
+    switch (type) {
+      case ThirdPartyType.supplier:
+        return 'Proveedor';
+      case ThirdPartyType.organizer:
+        return 'Organizador';
+      case ThirdPartyType.exhibitor:
+        return 'Expositor';
+      case ThirdPartyType.customer:
+        return 'Cliente';
+      case ThirdPartyType.other:
+        return 'Otro';
+    }
+  }
+
+  bool get hashCompleteContact {
+    return contactEmail != null || contactPhone != null;
   }
 }
