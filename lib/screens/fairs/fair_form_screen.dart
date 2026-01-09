@@ -4,6 +4,8 @@ import 'package:guia_start/models/third_party_model.dart';
 import 'package:guia_start/repositories/fair_repository.dart';
 import 'package:guia_start/repositories/third_party_repository.dart';
 import 'package:guia_start/services/auth_service.dart';
+import 'package:guia_start/utils/async_processor.dart';
+import 'package:guia_start/utils/result.dart';
 import 'package:guia_start/widgets/searchable_dropdown.dart';
 import 'package:guia_start/utils/validators.dart';
 
@@ -14,7 +16,7 @@ class FairFormScreen extends StatefulWidget {
   State<FairFormScreen> createState() => _FairFormScreenState();
 }
 
-class _FairFormScreenState extends State<FairFormScreen> {
+class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
   final _formKey = GlobalKey<FormState>();
   final FairRepository _fairRepo = FairRepository();
   final ThirdPartyRepository _thirdPartyRepo = ThirdPartyRepository();
@@ -25,7 +27,6 @@ class _FairFormScreenState extends State<FairFormScreen> {
 
   ThirdParty? _selectedOrganizer;
   bool _isRecurring = false;
-  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -72,10 +73,9 @@ class _FairFormScreenState extends State<FairFormScreen> {
 
   Future<void> _saveFair() async {
     if (!_formKey.currentState!.validate()) return;
-
     if (_selectedOrganizer == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona o crea un organizador')),
+        const SnackBar(content: Text('Debe seleccionar un organizador')),
       );
       return;
     }
@@ -83,34 +83,33 @@ class _FairFormScreenState extends State<FairFormScreen> {
     final userId = _authService.getCurrentUser()?.uid;
     if (userId == null) return;
 
-    await _executeAsync(
-      operation: () async {
-        final newFair = Fair(
-          id: '',
-          name: _nameController.text.trim(),
-          description: _descriptionController.text.trim(),
-          organizerId: _selectedOrganizer!.id,
-          organizerName: _selectedOrganizer!.name,
-          isRecurring: _isRecurring,
-          createdBy: userId,
-          createdAt: DateTime.now(),
-        );
-
-        final result = await _fairRepo.add(newFair);
-
-        if (result.isError) {
-          throw Exception(result.error);
-        }
-
-        if (mounted) {
-          final createdFair = newFair.copyWith(id: result.data);
-          Navigator.of(context).pop(createdFair);
-        }
-      },
-      loadingFlag: 'saving',
+    await executeOperation<Fair>(
+      operation: _createFair(userId),
       successMessage: 'Feria creada exitosamente',
-      errorMessage: 'Error al crear la feria',
+      onSuccess: () {
+        Navigator.of(context).pop();
+      },
     );
+
+    Future<Result<Fair>> _createFair(String userId) async {
+      final newFair = Fair(
+        id: '',
+        name: _nameController.text,
+        description: _descriptionController.text,
+        organizerId: _selectedOrganizer!.id,
+        isRecurring: _isRecurring,
+        createdBy: userId,
+        createdAt: DateTime.now(),
+      );
+
+      final result = await _fairRepo.add(newFair);
+
+      if (result.isError) {
+        return Result.error(result.error!);
+      }
+
+      return Result.success(newFair.copyWith(id: result.data));
+    }
   }
 
   @override
@@ -250,14 +249,14 @@ class _FairFormScreenState extends State<FairFormScreen> {
             SizedBox(
               height: 52,
               child: ElevatedButton(
-                onPressed: _isSaving ? null : _saveFair,
+                onPressed: isProcessing ? null : _saveFair,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: _isSaving
+                child: isProcessing
                     ? const CircularProgressIndicator(color: Colors.black)
                     : const Text(
                         'Crear Feria',
