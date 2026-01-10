@@ -16,13 +16,13 @@ class UserProfileRepository extends BaseRepository<UserProfile> {
   Map<String, dynamic> Function(UserProfile) get toMap =>
       (user) => user.toMap();
 
-  Future<Result<bool>> createUserProfile(UserProfile userProfile) async {
+  Future<Result<UserProfile>> createUserProfile(UserProfile userProfile) async {
     try {
       await _db
           .collection(collectionPath)
           .doc(userProfile.id)
           .set(toMap(userProfile));
-      return Result.success(true);
+      return Result.success(userProfile);
     } catch (e) {
       return Result.error('Error al crear perfil: $e');
     }
@@ -49,8 +49,23 @@ class UserProfileRepository extends BaseRepository<UserProfile> {
     }
   }
 
-// Actualizar último login
+// Obtiene un perfil de usuario por su ID
+  Future<Result<UserProfile>> getUserProfile(String userId) async {
+    return await getById(userId);
+  }
 
+  // Stream de perfil de usuario por su ID
+  Stream<UserProfile?> streamUserProfile(String userId) {
+    return _db.collection(collectionPath).doc(userId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return fromMap({
+        ...doc.data()!,
+        'id': doc.id,
+      });
+    });
+  }
+
+  /// Actualiza el último acceso del usuario
   Future<Result<bool>> updateLastLogin(String userId) async {
     try {
       await _db.collection(collectionPath).doc(userId).update({
@@ -58,7 +73,32 @@ class UserProfileRepository extends BaseRepository<UserProfile> {
       });
       return Result.success(true);
     } catch (e) {
-      return Result.error('Error al actualizar último login: $e');
+      return Result.error('Error al actualizar último acceso: $e');
+    }
+  }
+
+  /// Actualiza el nombre de negocio del usuario
+  Future<Result<bool>> updateBusinessName(
+      String userId, String businessName) async {
+    try {
+      await _db.collection(collectionPath).doc(userId).update({
+        'businessName': businessName,
+      });
+      return Result.success(true);
+    } catch (e) {
+      return Result.error('Error al actualizar nombre de negocio: $e');
+    }
+  }
+
+  /// Actualiza la imagen de perfil del usuario
+  Future<Result<bool>> updatePhotoUrl(String userId, String phtoUrl) async {
+    try {
+      await _db.collection(collectionPath).doc(userId).update({
+        'photoUrl': phtoUrl,
+      });
+      return Result.success(true);
+    } catch (e) {
+      return Result.error('Error al actualizar imagen de perfil: $e');
     }
   }
 }

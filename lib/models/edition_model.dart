@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:guia_start/utils/entity.dart';
 
-class Edition {
+class Edition extends Entity {
+  @override
   final String id;
   final String fairId;
   final String name;
@@ -51,6 +53,7 @@ class Edition {
     );
   }
 
+  @override
   Edition copyWith({
     String? id,
     String? fairId,

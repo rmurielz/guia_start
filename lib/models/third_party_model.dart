@@ -9,8 +9,10 @@ enum ThirdPartyType {
   other,
 }
 
-class ThirdParty {
+class ThirdParty extends Entity {
+  @override
   final String id;
+
   final String name;
   final ThirdPartyType type;
   final String? contactEmail;
@@ -60,7 +62,7 @@ class ThirdParty {
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
-
+  @override
   ThirdParty copyWith({
     String? id,
     String? name,
@@ -88,7 +90,7 @@ class ThirdParty {
   // Retorna una presentación legible del tercero
   @override
   String toString() {
-    return 'ThirdParty{id: $id, name: $name, type: ${type.toString().split('.').last})';
+    return 'ThirdParty(id: $id, name: $name, type: ${type.name})';
   }
 
   @override

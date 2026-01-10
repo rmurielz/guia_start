@@ -3,7 +3,8 @@ import 'package:guia_start/utils/entity.dart';
 
 // Modelo que representa una feria o evento comercial
 
-class Fair {
+class Fair extends Entity {
+  @override
   final String id;
   final String name;
   final String description;

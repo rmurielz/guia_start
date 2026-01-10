@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:guia_start/utils/entity.dart';
 
-class Participation {
+class Participation extends Entity {
+  @override
   final String id;
   final String userId;
   final String fairId;
@@ -49,7 +51,7 @@ class Participation {
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
-
+  @override
   Participation copyWith({
     String? id,
     String? userId,
@@ -73,4 +75,22 @@ class Participation {
       createdAt: createdAt ?? this.createdAt,
     );
   }
+
+  @override
+  String toString() {
+    return 'Participation(id: $id, fairName: $fairName, editionName: $editionName, boothNumber: $boothNumber)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Participation && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  bool get hasBoothAssigned => boothNumber != null && boothNumber!.isNotEmpty;
+
+  bool get isFree => participationCost == 0.0;
 }

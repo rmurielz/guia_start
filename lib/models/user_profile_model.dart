@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:guia_start/utils/entity.dart';
 
-class UserProfile {
+class UserProfile extends Entity {
+  @override
   final String id;
   final String name;
   final String email;
@@ -33,6 +35,7 @@ class UserProfile {
   }
 
   // Crear desde Map de Firestore
+  @override
   factory UserProfile.fromMap(Map<String, dynamic> map) {
     return UserProfile(
       id: map['id'] ?? '',
@@ -46,6 +49,7 @@ class UserProfile {
   }
 
   // Copiar con cambios
+  @override
   UserProfile copyWith({
     String? id,
     String? name,
@@ -66,6 +70,16 @@ class UserProfile {
     );
   }
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is UserProfile && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
 //Helper: Obtener nombre de usuario para mostrar
   String get displayName {
     if (businessName != null && businessName!.isNotEmpty) {
@@ -76,4 +90,5 @@ class UserProfile {
 
 //Helper: Veriificar si tiene negocio configurado
   bool get hasBusiness => businessName != null && businessName!.isNotEmpty;
+  bool get hasPhoto => photoUrl != null && photoUrl!.isNotEmpty;
 }

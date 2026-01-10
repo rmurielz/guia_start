@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:guia_start/utils/entity.dart';
 
-class Sale {
+class Sale extends Entity {
+  @override
   final String id;
+  final String participationId;
   final double amount;
   final String paymentMethod;
   final String products;
@@ -11,6 +14,7 @@ class Sale {
 
   Sale({
     required this.id,
+    required this.participationId,
     required this.amount,
     required this.paymentMethod,
     required this.products,
@@ -21,6 +25,7 @@ class Sale {
 
   Map<String, dynamic> toMap() {
     return {
+      'participantId': participationId,
       'amount': amount,
       'paymentMethod': paymentMethod,
       'products': products,
@@ -33,6 +38,7 @@ class Sale {
   factory Sale.fromMap(Map<String, dynamic> map) {
     return Sale(
       id: map['id'] ?? '',
+      participationId: map['participationId'] ?? '',
       amount: map['amount']?.toDouble() ?? 0.0,
       paymentMethod: map['paymentMethod'] ?? 'cash',
       products: map['products'] ?? '',
@@ -42,8 +48,10 @@ class Sale {
     );
   }
 
+  @override
   Sale copyWith({
     String? id,
+    String? participationId,
     double? amount,
     String? paymentMethod,
     String? products,
@@ -53,6 +61,7 @@ class Sale {
   }) {
     return Sale(
       id: id ?? this.id,
+      participationId: participationId ?? this.participationId,
       amount: amount ?? this.amount,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       products: products ?? this.products,
@@ -60,5 +69,36 @@ class Sale {
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Sale(id: $id, amount: \$$amount, method: $paymentMethod, participation: $participationId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Sale && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+  bool get hasContact => contactId != null && contactId!.isNotEmpty;
+  bool get hasNotes => notes != null && notes!.isNotEmpty;
+
+  String get paymentMethodLabel {
+    switch (paymentMethod) {
+      case 'cash':
+        return 'Efectivo';
+      case 'credit_card':
+        return 'Tarejeta de Crédito';
+      case 'debit_card':
+        return 'tarjeta de Débito';
+      case 'transfer':
+        return 'Transferencia';
+      default:
+        return paymentMethod;
+    }
   }
 }
