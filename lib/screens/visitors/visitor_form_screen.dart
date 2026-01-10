@@ -34,6 +34,7 @@ class _VisitorFormScreenState extends State<VisitorFormScreen> {
     try {
       final visitor = Visitor(
         id: '',
+        participationId: '',
         count: int.parse(_countController.text.trim()),
         notes: _notesController.text.trim().isEmpty
             ? null
@@ -41,12 +42,12 @@ class _VisitorFormScreenState extends State<VisitorFormScreen> {
         timestamp: DateTime.now(),
       );
 
-      final visitorId = await _participationRepo.addVisitor(
+      final result = await _participationRepo.addVisitor(
         widget.participationId,
         visitor,
       );
 
-      if (visitorId != null && mounted) {
+      if (result.isSuccess && mounted) {
         Navigator.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Visitor saved successfully!')),

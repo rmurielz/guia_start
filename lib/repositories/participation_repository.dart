@@ -79,6 +79,15 @@ class ParticipationRepository extends BaseRepository<Participation> {
     }
   }
 
+  /// Stream de contactos de una participación
+  Stream<List<Contact>> streamContacts(String participationId) {
+    return firestoreService
+        .streamCollection(
+          '$collectionPath/$participationId/contacts',
+        )
+        .map((List) => List.map((m) => Contact.fromMap(m)).toList());
+  }
+
   /// Agrega una venta a una participación
   Future<Result<Sale>> addSale(String participationId, Sale sale) async {
     try {
@@ -115,7 +124,7 @@ class ParticipationRepository extends BaseRepository<Participation> {
         .streamCollection(
           '$collectionPath/$participationId/sales',
         )
-        .map((List) => List.map((m) => Sale.fromMap(m)).toList());
+        .map((list) => list.map((m) => Sale.fromMap(m)).toList());
   }
 
   /// Agrega un registro de visitante a una participación

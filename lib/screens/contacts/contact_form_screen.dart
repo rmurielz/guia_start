@@ -78,6 +78,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     try {
       final contact = Contact(
         id: '',
+        participationId: '',
         thirdPartyId: _selectedThirdParty!.id,
         notes: _notesController.text.trim().isEmpty
             ? null
@@ -85,12 +86,12 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         createdAt: DateTime.now(),
       );
 
-      final contactId = await _participationRepo.addContact(
+      final result = await _participationRepo.addContact(
         widget.participationId,
         contact,
       );
 
-      if (contactId != null && mounted) {
+      if (result.isSuccess && mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Contact saved successfully')),

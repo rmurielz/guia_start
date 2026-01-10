@@ -58,10 +58,9 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen> {
         createdAt: DateTime.now(),
       );
 
-      final participationId =
-          await _participationRepo.addParticipation(participation);
+      final result = await _participationRepo.add(participation);
 
-      if (participationId != null && mounted) {
+      if (result.isSuccess && mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Participación registrada')),

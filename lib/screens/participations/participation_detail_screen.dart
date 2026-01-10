@@ -52,7 +52,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
       final editionResult =
           await _editionRepo.getById(widget.participation.editionId);
 
-      if (fairResult.isError || editionResult == null) {
+      if (fairResult.isError || editionResult.isError) {
         throw Exception('Error al cargar los datos');
       }
 

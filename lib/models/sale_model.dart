@@ -25,7 +25,7 @@ class Sale extends Entity {
 
   Map<String, dynamic> toMap() {
     return {
-      'participantId': participationId,
+      'participationId': participationId,
       'amount': amount,
       'paymentMethod': paymentMethod,
       'products': products,

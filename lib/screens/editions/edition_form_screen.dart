@@ -96,8 +96,7 @@ class _EditionFormScreenState extends State<EditionFormScreen> {
         throw Exception(result.error);
       }
       if (mounted) {
-        final createdEdition = edition.copyWith(id: result.data);
-        Navigator.pop(context, createdEdition);
+        Navigator.pop(context, result.data);
       }
     } catch (e) {
       setState(() => _isSaving = false);

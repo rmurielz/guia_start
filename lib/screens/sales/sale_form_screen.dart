@@ -37,6 +37,7 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
     try {
       final sale = Sale(
           id: '',
+          participationId: '',
           amount: double.parse(_amountController.text.trim()),
           paymentMethod: _paymentMethod,
           products: _productsController.text.trim(),
@@ -44,10 +45,11 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
               ? null
               : _notesController.text.trim(),
           createdAt: DateTime.now());
-      final saleId =
+
+      final result =
           await _participationRepo.addSale(widget.participationId, sale);
 
-      if (saleId != null && mounted) {
+      if (result.isSuccess && mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Sale saved successfully')),

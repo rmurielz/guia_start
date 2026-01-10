@@ -37,11 +37,11 @@ class AuthService {
           createdAt: DateTime.now(),
         );
 
-        final success = await _userProfileRepo.createUserProfile(userProfile);
-        if (!success) {
-          // Si falla crear perfil, eliminar usuario de Auth
+        final result = await _userProfileRepo.createUserProfile(userProfile);
+        if (result.isError) {
+          // Si hay error al crear el perfil, eliminar el usuario creado en Auth
           await user.delete();
-          throw 'Error al crear el perfil de usuario';
+          throw result.error!;
         }
 
         // 3.  Enviar email de verificación
@@ -99,7 +99,8 @@ class AuthService {
 
 // Obtener perfil de usuario desde Firestore
   Future<UserProfile?> getUserProfile(String userId) async {
-    return await _userProfileRepo.getUserProfile(userId);
+    final result = await _userProfileRepo.getUserProfile(userId);
+    return result.isSuccess ? result.data : null;
   }
 
 // Stream del perfil de usuario

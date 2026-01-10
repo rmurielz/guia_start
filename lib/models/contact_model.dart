@@ -38,7 +38,7 @@ class Contact extends Entity {
   @override
   Contact copyWith({
     String? id,
-    String? participantId,
+    String? participationId,
     String? thirdPartyId,
     String? notes,
     DateTime? createdAt,
