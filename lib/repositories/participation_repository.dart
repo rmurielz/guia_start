@@ -43,7 +43,7 @@ class ParticipationRepository extends BaseRepository<Participation> {
   Stream<List<Participation>> streamParticipationsByUserId(String userId) {
     return firestoreService
         .streamCollectionWhere(collectionPath, 'userId', userId)
-        .map((List) => List.map((m) => fromMap(m)).toList());
+        .map((list) => list.map((m) => fromMap(m)).toList());
   }
 
   // ========== MÉTODOS PARA SUBCOLECCIONES ==========
@@ -85,7 +85,7 @@ class ParticipationRepository extends BaseRepository<Participation> {
         .streamCollection(
           '$collectionPath/$participationId/contacts',
         )
-        .map((List) => List.map((m) => Contact.fromMap(m)).toList());
+        .map((list) => list.map((m) => Contact.fromMap(m)).toList());
   }
 
   /// Agrega una venta a una participación
@@ -163,7 +163,7 @@ class ParticipationRepository extends BaseRepository<Participation> {
         .streamCollection(
           '$collectionPath/$participationId/visitors',
         )
-        .map((List) => List.map((m) => Visitor.fromMap(m)).toList());
+        .map((list) => list.map((m) => Visitor.fromMap(m)).toList());
   }
 
   /// Agrega una participación (método legacy para compatibilidad)

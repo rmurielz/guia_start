@@ -136,10 +136,6 @@ class _EditionCard extends StatelessWidget {
     required this.onTap,
   });
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;

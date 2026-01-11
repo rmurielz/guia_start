@@ -24,7 +24,6 @@ class ParticipationDetailScreen extends StatefulWidget {
 
 class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
     with SingleTickerProviderStateMixin {
-  final ParticipationRepository _participacionRepo = ParticipationRepository();
   final FairRepository _fairRepo = FairRepository();
   final EditionRepository _editionRepo = EditionRepository();
 
