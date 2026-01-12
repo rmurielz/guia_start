@@ -1,0 +1,336 @@
+classDiagram
+    %% ========== CAPA DE PRESENTACIÓN ==========
+    class FairFormScreen {
+        -FairService fairService
+        -AuthService authService
+        +build() Widget
+        -saveFair() Future~void~
+    }
+    
+    class EditionFormScreen {
+        -EditionService editionService
+        -AuthService authService
+        +build() Widget
+        -saveEdition() Future~void~
+    }
+    
+    class ParticipationFormScreen {
+        -ParticipationService participationService
+        -AuthService authService
+        +build() Widget
+        -saveParticipation() Future~void~
+    }
+    
+    class ParticipationDetailScreen {
+        -ParticipationService participationService
+        +build() Widget
+        -loadStats() Future~void~
+    }
+    
+    %% ========== CAPA DE SERVICIOS ==========
+    class FairService {
+        -FairRepository fairRepo
+        -ThirdPartyRepository thirdPartyRepo
+        +createFair(CreateFairRequest) Future~Result~Fair~~
+        +updateFair(Fair) Future~Result~Fair~~
+        +getFairWithOrganizer(String) Future~Result~FairWithOrganizer~~
+        +searchFairs(String) Future~Result~List~Fair~~~
+        -isDuplicateFair(String, String) Future~bool~
+    }
+    
+    class EditionService {
+        -EditionRepository editionRepo
+        -FairRepository fairRepo
+        +createEdition(CreateEditionRequest) Future~Result~Edition~~
+        +updateEdition(Edition) Future~Result~Edition~~
+        +getEditionWithFair(String) Future~Result~EditionWithFair~~
+        +changeStatus(String, String) Future~Result~Edition~~
+        -hasDateOverlap(String, DateTime, DateTime) Future~bool~
+    }
+    
+    class ParticipationService {
+        -ParticipationRepository participationRepo
+        -EditionRepository editionRepo
+        -FairRepository fairRepo
+        +createParticipation(CreateParticipationRequest) Future~Result~Participation~~
+        +getParticipationDetails(String) Future~Result~ParticipationDetails~~
+        +addContact(String, Contact) Future~Result~Contact~~
+        +addSale(String, Sale) Future~Result~Sale~~
+        +addVisitor(String, Visitor) Future~Result~Visitor~~
+        +calculateROI(String) Future~Result~double~~
+        +getTotalSales(String) Future~Result~double~~
+        +getTotalVisitors(String) Future~Result~int~~
+    }
+    
+    class ThirdPartyService {
+        -ThirdPartyRepository thirdPartyRepo
+        +createThirdParty(CreateThirdPartyRequest) Future~Result~ThirdParty~~
+        +updateThirdParty(ThirdParty) Future~Result~ThirdParty~~
+        +searchOrganizers(String) Future~Result~List~ThirdParty~~~
+        -isValidEmail(String) bool
+        -isDuplicateThirdParty(String) Future~bool~
+    }
+    
+    class AuthService {
+        -FirebaseAuth auth
+        -UserProfileRepository userProfileRepo
+        +signUp(String, String, String) Future~User~
+        +signIn(String, String) Future~User~
+        +getCurrentUser() User
+        +getUserProfile(String) Future~UserProfile~
+    }
+    
+    %% ========== CAPA DE REPOSITORIOS ==========
+    class BaseRepository~T extends Entity~ {
+        #FirestoreService firestoreService
+        #String collectionPath
+        +add(T) Future~Result~T~~
+        +getById(String) Future~Result~T~~
+        +getAll() Future~Result~List~T~~~
+        +update(String, T) Future~Result~bool~~
+        +delete(String) Future~Result~bool~~
+        +streamAll() Stream~List~T~~
+    }
+    
+    class FairRepository {
+        +searchFairByName(String) Future~List~Fair~~
+    }
+    
+    class EditionRepository {
+        +getEditionsByFairId(String) Future~List~Edition~~
+        +streamEditionsByFairId(String) Stream~List~Edition~~
+    }
+    
+    class ParticipationRepository {
+        +saveParticipation(Participation) Future~Result~Participation~~
+        +getParticipationsByUserId(String) Future~Result~List~Participation~~~
+        +addContact(String, Contact) Future~Result~Contact~~
+        +addSale(String, Sale) Future~Result~Sale~~
+        +addVisitor(String, Visitor) Future~Result~Visitor~~
+        +streamContacts(String) Stream~List~Contact~~
+        +streamSales(String) Stream~List~Sale~~
+        +streamVisitors(String) Stream~List~Visitor~~
+    }
+    
+    class ThirdPartyRepository {
+        +getThirdPartiesById(ThirdPartyType) Future~List~ThirdParty~~
+        +searchThirdPartiesByName(String) Future~List~ThirdParty~~
+        +streamThirdPartiesByType(ThirdPartyType) Stream~List~ThirdParty~~
+    }
+    
+    class UserProfileRepository {
+        +createUserProfile(UserProfile) Future~Result~UserProfile~~
+        +getUserProfileByEmail(String) Future~Result~UserProfile~~
+        +updateLastLogin(String) Future~Result~bool~~
+        +streamUserProfile(String) Stream~UserProfile~
+    }
+    
+    %% ========== MODELOS ==========
+    class Entity {
+        <<abstract>>
+        +String id
+        +copyWith(String) Entity
+        +isNew bool
+        +isExisting bool
+        +isSameAs(Entity) bool
+    }
+    
+    class Fair {
+        +String name
+        +String description
+        +String organizerId
+        +String organizerName
+        +bool isRecurring
+        +String createdBy
+        +DateTime createdAt
+    }
+    
+    class Edition {
+        +String fairId
+        +String name
+        +String location
+        +DateTime initDate
+        +DateTime endDate
+        +String status
+        +isPlanning bool
+        +isActive bool
+        +canEdit bool
+    }
+    
+    class Participation {
+        +String userId
+        +String fairId
+        +String fairName
+        +String editionId
+        +String editionName
+        +String boothNumber
+        +double participationCost
+        +hasBoothAssigned bool
+        +isFree bool
+    }
+    
+    class ThirdParty {
+        +String name
+        +ThirdPartyType type
+        +String contactEmail
+        +String contactPhone
+        +String typeLabel
+        +hasCompleteContact bool
+    }
+    
+    class Contact {
+        +String participationId
+        +String thirdPartyId
+        +String notes
+        +hasNotes bool
+    }
+    
+    class Sale {
+        +String participationId
+        +double amount
+        +String paymentMethod
+        +String products
+        +String contactId
+        +paymentMethodLabel String
+        +hasContact bool
+    }
+    
+    class Visitor {
+        +String participationId
+        +int count
+        +String notes
+        +DateTime timestamp
+        +hasNotes bool
+    }
+    
+    class UserProfile {
+        +String name
+        +String email
+        +String businessName
+        +String photoUrl
+        +DateTime lastLoginAt
+        +displayName String
+        +hasBusiness bool
+    }
+    
+    %% ========== DTOs ==========
+    class CreateFairRequest {
+        +String name
+        +String description
+        +String organizerId
+        +bool isRecurring
+        +String createdBy
+    }
+    
+    class FairWithOrganizer {
+        +Fair fair
+        +ThirdParty organizer
+    }
+    
+    class CreateEditionRequest {
+        +String fairId
+        +String name
+        +String location
+        +DateTime initDate
+        +DateTime endDate
+        +String createdBy
+    }
+    
+    class EditionWithFair {
+        +Edition edition
+        +Fair fair
+    }
+    
+    class CreateParticipationRequest {
+        +String userId
+        +String fairId
+        +String editionId
+        +String boothNumber
+        +double participationCost
+    }
+    
+    class ParticipationDetails {
+        +Participation participation
+        +Fair fair
+        +Edition edition
+    }
+    
+    %% ========== UTILIDADES ==========
+    class Result~T~ {
+        +T data
+        +String error
+        +ResultStatus status
+        +isSuccess bool
+        +isError bool
+    }
+    
+    class AsyncProcessor {
+        <<mixin>>
+        +bool isProcessing
+        +executeOperation(Future~Result~R~~) Future~void~
+    }
+    
+    %% ========== RELACIONES SCREENS -> SERVICES ==========
+    FairFormScreen --> FairService
+    FairFormScreen --> AuthService
+    FairFormScreen ..|> AsyncProcessor
+    
+    EditionFormScreen --> EditionService
+    EditionFormScreen --> AuthService
+    EditionFormScreen ..|> AsyncProcessor
+    
+    ParticipationFormScreen --> ParticipationService
+    ParticipationFormScreen --> AuthService
+    ParticipationFormScreen ..|> AsyncProcessor
+    
+    ParticipationDetailScreen --> ParticipationService
+    
+    %% ========== RELACIONES SERVICES -> REPOSITORIES ==========
+    FairService --> FairRepository
+    FairService --> ThirdPartyRepository
+    
+    EditionService --> EditionRepository
+    EditionService --> FairRepository
+    
+    ParticipationService --> ParticipationRepository
+    ParticipationService --> EditionRepository
+    ParticipationService --> FairRepository
+    
+    ThirdPartyService --> ThirdPartyRepository
+    
+    AuthService --> UserProfileRepository
+    
+    %% ========== RELACIONES REPOSITORIES -> BASE ==========
+    FairRepository --|> BaseRepository
+    EditionRepository --|> BaseRepository
+    ParticipationRepository --|> BaseRepository
+    ThirdPartyRepository --|> BaseRepository
+    UserProfileRepository --|> BaseRepository
+    
+    %% ========== RELACIONES MODELS -> ENTITY ==========
+    Fair ..|> Entity
+    Edition ..|> Entity
+    Participation ..|> Entity
+    ThirdParty ..|> Entity
+    Contact ..|> Entity
+    Sale ..|> Entity
+    Visitor ..|> Entity
+    UserProfile ..|> Entity
+    
+    %% ========== RELACIONES SERVICES -> DTOs ==========
+    FairService ..> CreateFairRequest
+    FairService ..> FairWithOrganizer
+    
+    EditionService ..> CreateEditionRequest
+    EditionService ..> EditionWithFair
+    
+    ParticipationService ..> CreateParticipationRequest
+    ParticipationService ..> ParticipationDetails
+    
+    %% ========== RELACIONES CON RESULT ==========
+    FairService ..> Result
+    EditionService ..> Result
+    ParticipationService ..> Result
+    ThirdPartyService ..> Result
+    BaseRepository ..> Result
+    AsyncProcessor ..> Result

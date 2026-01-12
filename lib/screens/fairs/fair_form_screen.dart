@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/fair_model.dart';
 import 'package:guia_start/models/third_party_model.dart';
-import 'package:guia_start/repositories/fair_repository.dart';
 import 'package:guia_start/repositories/third_party_repository.dart';
 import 'package:guia_start/services/auth_service.dart';
+import 'package:guia_start/services/fair_service.dart';
 import 'package:guia_start/utils/async_processor.dart';
-import 'package:guia_start/utils/result.dart';
 import 'package:guia_start/widgets/searchable_dropdown.dart';
 import 'package:guia_start/utils/validators.dart';
 
@@ -18,7 +16,7 @@ class FairFormScreen extends StatefulWidget {
 
 class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
   final _formKey = GlobalKey<FormState>();
-  final FairRepository _fairRepo = FairRepository();
+  final FairService _fairService = FairService();
   final ThirdPartyRepository _thirdPartyRepo = ThirdPartyRepository();
   final AuthService _authService = AuthService();
 
@@ -35,26 +33,6 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
     super.dispose();
   }
 
-  Future<Result<Fair>> _createFair() async {
-    final userId = _authService.getCurrentUser()?.uid;
-    if (userId == null) {
-      return Result.error('Usuario no autenticado');
-    }
-
-    final newFair = Fair(
-      id: '',
-      name: _nameController.text.trim(),
-      description: _descriptionController.text.trim(),
-      organizerId: _selectedOrganizer!.id,
-      organizerName: _selectedOrganizer!.name,
-      isRecurring: _isRecurring,
-      createdBy: userId,
-      createdAt: DateTime.now(),
-    );
-
-    return await _fairRepo.add(newFair);
-  }
-
   Future<void> _saveFair() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -65,12 +43,26 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
       return;
     }
 
-    await executeOperation<Fair>(
-      operation: _createFair(),
+    final userId = _authService.getCurrentUser()?.uid;
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario no autenticado')),
+      );
+      return;
+    }
+
+    final request = CreateFairRequest(
+      name: _nameController.text,
+      description: _descriptionController.text,
+      organizerId: _selectedOrganizer!.id,
+      isRecurring: _isRecurring,
+      createdBy: userId,
+    );
+
+    await executeOperation(
+      operation: _fairService.createFair(request),
       successMessage: 'Feria creada exitosamente',
-      onSuccess: () {
-        Navigator.of(context).pop();
-      },
+      onSuccess: () => Navigator.of(context).pop(),
     );
   }
 
@@ -85,7 +77,7 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
           'Crear una nueva feria',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
