@@ -15,14 +15,14 @@ class CreateParticipationRequest {
   final String userId;
   final String fairId;
   final String editionId;
-  final String? boothNuber;
+  final String? boothNumber;
   final double particpationCost;
 
   CreateParticipationRequest({
     required this.userId,
     required this.fairId,
     required this.editionId,
-    this.boothNuber,
+    this.boothNumber,
     required this.particpationCost,
   });
 }
@@ -90,7 +90,7 @@ class ParticipationService {
       fairName: fair.name,
       editionId: request.editionId,
       editionName: edition.name,
-      boothNumber: request.boothNuber,
+      boothNumber: request.boothNumber?.trim(),
       participationCost: request.particpationCost,
       createdAt: DateTime.now(),
     );

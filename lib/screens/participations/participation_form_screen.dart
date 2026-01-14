@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:guia_start/models/fair_model.dart';
 import 'package:guia_start/models/edition_model.dart';
-import 'package:guia_start/models/participation_model.dart';
-import 'package:guia_start/repositories/participation_repository.dart';
+import 'package:guia_start/services/participation_service.dart';
 import 'package:guia_start/services/auth_service.dart';
+import 'package:guia_start/utils/async_processor.dart';
+import 'package:guia_start/utils/validators.dart';
 
 class ParticipationFormScreen extends StatefulWidget {
   final Fair fair;
@@ -20,15 +21,14 @@ class ParticipationFormScreen extends StatefulWidget {
       _ParticipationFormScreenState();
 }
 
-class _ParticipationFormScreenState extends State<ParticipationFormScreen> {
+class _ParticipationFormScreenState extends State<ParticipationFormScreen>
+    with AsyncProcessor {
   final _formKey = GlobalKey<FormState>();
-  final ParticipationRepository _participationRepo = ParticipationRepository();
+  final ParticipationService _participationService = ParticipationService();
   final AuthService _authService = AuthService();
 
   final TextEditingController _boothController = TextEditingController();
   final TextEditingController _costController = TextEditingController();
-
-  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -39,46 +39,34 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen> {
 
   Future<void> _saveParticipation() async {
     if (!_formKey.currentState!.validate()) return;
-    final userId = _authService.getCurrentUser()?.uid;
-    if (userId == null) return;
 
-    setState(() => _isSaving = true);
-    try {
-      final participation = Participation(
-        id: '',
+    final userId = _authService.getCurrentUser()?.uid;
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario no autenticado')),
+      );
+      return;
+    }
+    final request = CreateParticipationRequest(
         userId: userId,
         fairId: widget.fair.id,
-        fairName: widget.fair.name,
         editionId: widget.edition.id,
-        editionName: widget.edition.name,
         boothNumber: _boothController.text.trim().isEmpty
             ? null
             : _boothController.text.trim(),
-        participationCost: double.parse(_costController.text.trim()),
-        createdAt: DateTime.now(),
-      );
+        particpationCost: double.parse(_costController.text.trim()));
 
-      final result = await _participationRepo.add(participation);
-
-      if (result.isSuccess && mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Participación registrada')),
-        );
-      }
-    } catch (e) {
-      setState(() => _isSaving = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error $e')),
-        );
-      }
-    }
+    await executeOperation(
+      operation: _participationService.createParticipation(request),
+      successMessage: 'Participación registrada con éxito',
+      onSuccess: () => Navigator.of(context).popUntil((route) => route.isFirst),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: colorScheme.primary,
@@ -185,14 +173,14 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen> {
             SizedBox(
               height: 52,
               child: ElevatedButton(
-                onPressed: _isSaving ? null : _saveParticipation,
+                onPressed: isProcessing ? null : _saveParticipation,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: _isSaving
+                child: isProcessing
                     ? const CircularProgressIndicator(
                         color: Colors.black,
                       )

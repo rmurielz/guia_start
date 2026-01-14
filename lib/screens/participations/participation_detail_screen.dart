@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:guia_start/models/participation_model.dart';
-import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/models/edition_model.dart';
 import 'package:guia_start/models/sale_model.dart';
 import 'package:guia_start/models/contact_model.dart';
 import 'package:guia_start/models/visitor_model.dart';
-import 'package:guia_start/repositories/participation_repository.dart';
-import 'package:guia_start/repositories/fair_repository.dart';
-import 'package:guia_start/repositories/edition_repository.dart';
+import 'package:guia_start/services/participation_service.dart';
 import 'package:guia_start/screens/sales/sale_form_screen.dart';
 import 'package:guia_start/screens/contacts/contact_form_screen.dart';
 import 'package:guia_start/screens/visitors/visitor_form_screen.dart';
@@ -24,19 +20,20 @@ class ParticipationDetailScreen extends StatefulWidget {
 
 class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
     with SingleTickerProviderStateMixin {
-  final FairRepository _fairRepo = FairRepository();
-  final EditionRepository _editionRepo = EditionRepository();
+  final ParticipationService _participationService = ParticipationService();
 
   late TabController _tabController;
-  Fair? _fair;
-  Edition? _edition;
-  bool _isLoading = true;
+  bool _isLoadingStats = true;
+  double _totalSales = 0.0;
+  int _totalVisitors = 0;
+  int _totalContacts = 0;
+  double _roi = 0.0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadData();
+    _loadStats();
   }
 
   @override
@@ -45,28 +42,24 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
     super.dispose();
   }
 
-  Future<void> _loadData() async {
-    try {
-      final fairResult = await _fairRepo.getById(widget.participation.fairId);
-      final editionResult =
-          await _editionRepo.getById(widget.participation.editionId);
+  Future<void> _loadStats() async {
+    final salesResult =
+        await _participationService.getTotalSales(widget.participation.id);
+    final visitorsResult =
+        await _participationService.getTotalVisitors(widget.participation.id);
+    final contactsResult =
+        await _participationService.getTotalContacts(widget.participation.id);
+    final roiResult =
+        await _participationService.calculateRoi(widget.participation.id);
 
-      if (fairResult.isError || editionResult.isError) {
-        throw Exception('Error al cargar los datos');
-      }
-
+    if (mounted) {
       setState(() {
-        _fair = fairResult.data;
-        _edition = editionResult.data;
-        _isLoading = false;
+        _totalSales = salesResult.isSuccess ? salesResult.data! : 0.0;
+        _totalVisitors = visitorsResult.isSuccess ? visitorsResult.data! : 0;
+        _totalContacts = contactsResult.isSuccess ? contactsResult.data! : 0;
+        _roi = roiResult.isSuccess ? roiResult.data! : 0.0;
+        _isLoadingStats = false;
       });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error $e')),
-        );
-      }
     }
   }
 
@@ -98,27 +91,33 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
           ],
         ),
       ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(color: colorScheme.primary),
-            )
-          : Column(
-              children: [
-                _buildHeader(colorScheme),
+      body: Column(
+        children: [
+          _buildHeader(colorScheme),
+          _buildStatSection(colorScheme),
 
-                // Tabs content
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _SalesTab(participationId: widget.participation.id),
-                      _ContactsTab(participationId: widget.participation.id),
-                      _VisitorsTab(participationId: widget.participation.id),
-                    ],
-                  ),
+          // Tabs content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _SalesTab(
+                  participationId: widget.participation.id,
+                  onSaleAdded: _loadStats,
+                ),
+                _ContactsTab(
+                  participationId: widget.participation.id,
+                  onContactAdded: _loadStats,
+                ),
+                _VisitorsTab(
+                  participationId: widget.participation.id,
+                  onVisitorAdded: _loadStats,
                 ),
               ],
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -139,7 +138,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _fair?.name ?? 'Cargando...',
+            widget.participation.fairName,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -148,7 +147,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            _edition?.name ?? '',
+            widget.participation.editionName,
             style: TextStyle(
               fontSize: 16,
               color: colorScheme.tertiary.withOpacity(0.7),
@@ -190,23 +189,79 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
       ),
     );
   }
+
+  Widget _buildStatSection(ColorScheme colorScheme) {
+    if (_isLoadingStats) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatCard('Ventas', '\$${_totalSales.toStringAsFixed(0)}',
+              Icons.attach_money, colorScheme),
+          _buildStatCard(
+              'Contactos', '$_totalContacts', Icons.people, colorScheme),
+          _buildStatCard(
+              'Visitantes', '$_totalVisitors', Icons.groups, colorScheme),
+          _buildStatCard('ROI', '${_roi.toStringAsFixed(2)}%',
+              Icons.trending_up, colorScheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    ColorScheme colorScheme,
+  ) {
+    return Column(
+      children: [
+        Icon(icon, size: 24, color: colorScheme.primary),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.tertiary,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: colorScheme.tertiary.withOpacity(0.7),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 // ========= TAB VENTAS =========
 
 class _SalesTab extends StatelessWidget {
   final String participationId;
+  final VoidCallback onSaleAdded;
 
-  const _SalesTab({required this.participationId});
+  const _SalesTab({required this.participationId, required this.onSaleAdded});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final participationRepo = ParticipationRepository();
+    final participationService = ParticipationService();
 
     return Scaffold(
       body: StreamBuilder<List<Sale>>(
-        stream: participationRepo.streamSales(participationId),
+        stream: participationService.streamSales(participationId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -280,6 +335,7 @@ class _SalesTab extends StatelessWidget {
               ),
             ),
           );
+          onSaleAdded();
         },
         child: const Icon(Icons.add, color: Colors.black),
       ),
@@ -291,17 +347,19 @@ class _SalesTab extends StatelessWidget {
 
 class _ContactsTab extends StatelessWidget {
   final String participationId;
+  final VoidCallback onContactAdded;
 
-  const _ContactsTab({required this.participationId});
+  const _ContactsTab(
+      {required this.participationId, required this.onContactAdded});
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final participationRepo = ParticipationRepository();
+    final participationService = ParticipationService();
 
     return Scaffold(
       body: StreamBuilder<List<Contact>>(
-        stream: participationRepo.streamContacts(participationId),
+        stream: participationService.streamContacts(participationId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -356,17 +414,18 @@ class _ContactsTab extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: colorScheme.primary,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ContactFormScreen(
-                  participationId: participationId,
-                ),
-              ),
-            );
-          }),
+        backgroundColor: colorScheme.primary,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ContactFormScreen(participationId: participationId)),
+          );
+          onContactAdded();
+        },
+        child: const Icon(Icons.add, color: Colors.black),
+      ),
     );
   }
 }
@@ -375,17 +434,19 @@ class _ContactsTab extends StatelessWidget {
 
 class _VisitorsTab extends StatelessWidget {
   final String participationId;
+  final VoidCallback onVisitorAdded;
 
-  const _VisitorsTab({required this.participationId});
+  const _VisitorsTab(
+      {required this.participationId, required this.onVisitorAdded});
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final participationRepo = ParticipationRepository();
+    final participationService = ParticipationService();
 
     return Scaffold(
       body: StreamBuilder<List<Visitor>>(
-        stream: participationRepo.streamVisitors(participationId),
+        stream: participationService.streamVisitors(participationId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -488,6 +549,7 @@ class _VisitorsTab extends StatelessWidget {
               ),
             ),
           );
+          onVisitorAdded();
         },
         child: const Icon(Icons.add, color: Colors.black),
       ),

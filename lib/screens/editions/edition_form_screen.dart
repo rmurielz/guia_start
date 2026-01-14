@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/models/edition_model.dart';
-import 'package:guia_start/repositories/edition_repository.dart';
 import 'package:guia_start/services/auth_service.dart';
+import 'package:guia_start/services/edition_service.dart';
+import 'package:guia_start/utils/async_processor.dart';
 
 class EditionFormScreen extends StatefulWidget {
   final Fair fair;
@@ -13,9 +13,10 @@ class EditionFormScreen extends StatefulWidget {
   State<EditionFormScreen> createState() => _EditionFormScreenState();
 }
 
-class _EditionFormScreenState extends State<EditionFormScreen> {
+class _EditionFormScreenState extends State<EditionFormScreen>
+    with AsyncProcessor {
   final _formKey = GlobalKey<FormState>();
-  final EditionRepository _editionRepo = EditionRepository();
+  final EditionService _editionService = EditionService();
   final AuthService _authService = AuthService();
 
   final TextEditingController _nameController = TextEditingController();
@@ -24,7 +25,6 @@ class _EditionFormScreenState extends State<EditionFormScreen> {
   DateTime? _initDate;
   DateTime? _endDate;
   String _status = 'planning';
-  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -58,54 +58,35 @@ class _EditionFormScreenState extends State<EditionFormScreen> {
     if (_initDate == null || _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select a date'),
+          content: Text('Please select dates'),
         ),
       );
       return;
     }
 
-    if (_endDate!.isBefore(_initDate!)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('The end date must be after the start date'),
-        ),
-      );
-      return;
-    }
     final userId = _authService.getCurrentUser()?.uid;
-    if (userId == null) return;
-
-    setState(() => _isSaving = true);
-
-    try {
-      final edition = Edition(
-        id: '',
-        fairId: widget.fair.id,
-        name: _nameController.text.trim(),
-        location: _locationController.text.trim(),
-        initDate: _initDate!,
-        endDate: _endDate!,
-        createdBy: userId,
-        createdAt: DateTime.now(),
-        status: _status,
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario no autenticado')),
       );
-
-      final result = await _editionRepo.add(edition);
-
-      if (result.isError) {
-        throw Exception(result.error);
-      }
-      if (mounted) {
-        Navigator.pop(context, result.data);
-      }
-    } catch (e) {
-      setState(() => _isSaving = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error $e')),
-        );
-      }
+      return;
     }
+
+    final request = CreateEditionRequest(
+      fairId: widget.fair.id,
+      name: _nameController.text.trim(),
+      location: _locationController.text.trim(),
+      initDate: _initDate!,
+      endDate: _endDate!,
+      createdBy: userId,
+      status: _status,
+    );
+
+    await executeOperation(
+      operation: _editionService.createEdition(request),
+      successMessage: 'Edición creada exitosamente',
+      onSuccess: () => Navigator.of(context).pop(),
+    );
   }
 
   String _formatDate(DateTime? date) {
@@ -240,14 +221,14 @@ class _EditionFormScreenState extends State<EditionFormScreen> {
             SizedBox(
               height: 52,
               child: ElevatedButton(
-                onPressed: _isSaving ? null : _saveEdition,
+                onPressed: isProcessing ? null : _saveEdition,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: _isSaving
+                child: isProcessing
                     ? const CircularProgressIndicator(color: Colors.black)
                     : const Text(
                         'Crear Edición',
