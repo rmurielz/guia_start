@@ -4,7 +4,6 @@ import 'package:guia_start/models/edition_model.dart';
 import 'package:guia_start/services/participation_service.dart';
 import 'package:guia_start/services/auth_service.dart';
 import 'package:guia_start/utils/async_processor.dart';
-import 'package:guia_start/utils/validators.dart';
 
 class ParticipationFormScreen extends StatefulWidget {
   final Fair fair;

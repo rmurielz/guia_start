@@ -66,14 +66,13 @@ class ParticipationService {
     if (fairResult.isError) {
       return Result.error('Feria no encontrada');
     }
-    final fair = fairResult.data!;
 
     // Validar que la edición exista y pertenezca a la feria
     final editionResult = await _editionRepo.getById(request.editionId);
     if (editionResult.isError) {
       return Result.error('Edición no encontrada');
     }
-    final edition = editionResult.data!;
+
 // Validar que el usuario no tenga ya una participación en esa edición
     final hasDuplicate =
         await _hasUserParticipation(request.userId, request.editionId);
@@ -87,9 +86,7 @@ class ParticipationService {
       id: '', // ID se asigna en el repositorio
       userId: request.userId,
       fairId: request.fairId,
-      fairName: fair.name,
       editionId: request.editionId,
-      editionName: edition.name,
       boothNumber: request.boothNumber?.trim(),
       participationCost: request.particpationCost,
       createdAt: DateTime.now(),
@@ -255,5 +252,35 @@ class ParticipationService {
   /// Stream de participaciones de un usuario
   Stream<List<Participation>> streamParticipations(String userId) {
     return _participationRepo.streamParticipationsByUserId(userId);
+  }
+
+  /// Obtiene todas las participaciones de un usuario con detalles completos
+
+  Future<Result<List<ParticipationDetails>>> getUserParticipationsDetailed(
+      String userId) async {
+    try {
+      final result = await _participationRepo.getParticipationsByUserId(userId);
+      if (result.isError) return Result.error(result.error!);
+
+      final List<ParticipationDetails> detailedList = [];
+
+      for (var participation in result.data!) {
+        final fairResult = await _fairRepo.getById(participation.fairId);
+        final editionResult =
+            await _editionRepo.getById(participation.editionId);
+
+        if (fairResult.isSuccess && editionResult.isSuccess) {
+          detailedList.add(ParticipationDetails(
+            participation: participation,
+            fair: fairResult.data!,
+            edition: editionResult.data!,
+          ));
+        }
+      }
+
+      return Result.success(detailedList);
+    } catch (e) {
+      return Result.error('Error al procesar detalles de participaciones: $e');
+    }
   }
 }

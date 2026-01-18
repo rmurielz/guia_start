@@ -3,10 +3,12 @@ import 'package:guia_start/models/participation_model.dart';
 import 'package:guia_start/models/sale_model.dart';
 import 'package:guia_start/models/contact_model.dart';
 import 'package:guia_start/models/visitor_model.dart';
+import 'package:guia_start/providers/app_state_provider.dart';
 import 'package:guia_start/services/participation_service.dart';
 import 'package:guia_start/screens/sales/sale_form_screen.dart';
 import 'package:guia_start/screens/contacts/contact_form_screen.dart';
 import 'package:guia_start/screens/visitors/visitor_form_screen.dart';
+import 'package:provider/provider.dart';
 
 class ParticipationDetailScreen extends StatefulWidget {
   final Participation participation;
@@ -24,15 +26,20 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
 
   late TabController _tabController;
   bool _isLoadingStats = true;
+  bool _isLoadingDetails = true;
   double _totalSales = 0.0;
   int _totalVisitors = 0;
   int _totalContacts = 0;
   double _roi = 0.0;
 
+  String _fairName = '';
+  String _editionName = '';
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadDetails();
     _loadStats();
   }
 
@@ -40,6 +47,29 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadDetails() async {
+    final detailResults = await _participationService
+        .getParticipationsDetails(widget.participation.id);
+
+    if (detailResults.isSuccess && mounted) {
+      final details = detailResults.data!;
+      context.read<AppStateProvider>().setActiveParticipation(
+            participation: details.participation,
+            fair: details.fair,
+            edition: details.edition,
+          );
+      setState(() {
+        _isLoadingDetails = false;
+      });
+    } else if (detailResults.isError && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text(detailResults.error ?? 'Error al cargar los detalles')),
+      );
+    }
   }
 
   Future<void> _loadStats() async {
@@ -66,6 +96,20 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    if (_isLoadingDetails) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: colorScheme.primary,
+          title: const Text(
+            'Detalle de Participación',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+          iconTheme: const IconThemeData(color: Colors.black),
+        ),
+        body: Center(
+            child: CircularProgressIndicator(color: colorScheme.primary)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -77,9 +121,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
             color: Colors.black,
           ),
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
+        iconTheme: const IconThemeData(color: Colors.black),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.black,
@@ -95,8 +137,6 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
         children: [
           _buildHeader(colorScheme),
           _buildStatSection(colorScheme),
-
-          // Tabs content
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -138,7 +178,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.participation.fairName,
+            _fairName,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -147,7 +187,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            widget.participation.editionName,
+            _editionName,
             style: TextStyle(
               fontSize: 16,
               color: colorScheme.tertiary.withOpacity(0.7),
@@ -246,7 +286,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
   }
 }
 
-// ========= TAB VENTAS =========
+// ========= TABS =========
 
 class _SalesTab extends StatelessWidget {
   final String participationId;

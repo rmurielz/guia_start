@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/repositories/fair_repository.dart';
 import 'package:guia_start/models/fair_model.dart';
+import 'package:guia_start/services/fair_service.dart';
 import 'package:guia_start/screens/fairs/fair_form_screen.dart';
+import 'package:guia_start/screens/editions/edition_list_screen.dart';
+import 'package:guia_start/utils/result.dart';
 
 class FairSearchScreen extends StatefulWidget {
   const FairSearchScreen({super.key});
@@ -11,9 +13,10 @@ class FairSearchScreen extends StatefulWidget {
 }
 
 class _FairSearchScreenState extends State<FairSearchScreen> {
-  final FairRepository _fairRepo = FairRepository();
+  final FairService _fairService = FairService();
   final TextEditingController _searchController = TextEditingController();
-  List<Fair> _searchResults = [];
+
+  List<FairWithOrganizer> _searchResults = [];
   bool _isSearching = false;
   bool _hasSearched = false;
 
@@ -25,7 +28,6 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
 
   Future<void> _searchFairs() async {
     final query = _searchController.text.trim();
-
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -33,43 +35,36 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
       });
       return;
     }
-
     setState(() {
       _isSearching = true;
       _hasSearched = true;
     });
 
-    try {
-      final results = await _fairRepo.searchFairByName(query);
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
-    } catch (e) {
+    // Llamamos al método del servicio que armamos
+
+    final result = await _fairService.searchFairWithOrganizer(query);
+    if (mounted) {
       setState(() {
         _isSearching = false;
+        _searchResults = result.isSuccess ? result.data! : [];
       });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al buscar: $e')),
-        );
-      }
     }
   }
 
   void _selectFair(Fair fair) {
-    Navigator.pop(context, fair);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditionListScreen(fair: fair),
+      ),
+    );
   }
 
-  Future<void> _createNewFair() async {
-    final result = await Navigator.push(
+  void _createNewFair() async {
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const FairFormScreen()),
     );
-
-    if (result != null && mounted) {
-      Navigator.pop(context, result);
-    }
   }
 
   @override
@@ -78,15 +73,9 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorScheme.primary,
         title: const Text(
-          'Buscar Feria',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          'Buscar Ferias',
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Column(
         children: [
@@ -95,7 +84,6 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: _searchController,
-              style: TextStyle(color: colorScheme.tertiary),
               decoration: InputDecoration(
                 hintText: 'Nombre de la feria',
                 prefixIcon: const Icon(Icons.search),
@@ -104,185 +92,67 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          setState(() {
-                            _searchResults = [];
-                            _hasSearched = false;
-                          });
+                          _searchFairs();
                         },
                       )
                     : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              onChanged: (value) {
-                setState(() {}); // Para actualizar el botón clear
-              },
               onSubmitted: (_) => _searchFairs(),
             ),
           ),
-
-          // Botón buscar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed: _isSearching ? null : _searchFairs,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: _isSearching
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.black,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Icon(Icons.search, color: Colors.black),
-                label: Text(
-                  _isSearching ? 'Buscando...' : 'Buscar',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
           // Resultados de búsqueda
           Expanded(
             child: _isSearching
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: colorScheme.primary,
-                    ),
-                  )
-                : _hasSearched && _searchResults.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: colorScheme.tertiary.withOpacity(0.3),
+                ? const Center(child: CircularProgressIndicator())
+                : _searchResults.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        itemCount: _searchResults.length,
+                        itemBuilder: (context, index) {
+                          final item = _searchResults[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: ListTile(
+                              title: Text(item.fair.name,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              subtitle:
+                                  Text('Organiza: ${item.organizer.name}}'),
+                              trailing:
+                                  const Icon(Icons.arrow_forward_ios, size: 16),
+                              onTap: () => _selectFair(item.fair),
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No se encontraron ferias',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: colorScheme.tertiary.withOpacity(0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            ElevatedButton.icon(
-                              onPressed: _createNewFair,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorScheme.secondary,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                              ),
-                              icon: const Icon(Icons.add, color: Colors.black),
-                              label: const Text(
-                                'Crear nueva feria',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : _searchResults.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Busca una feria existente / Crea una nueva',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colorScheme.tertiary.withOpacity(0.5),
-                              ),
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: _searchResults.length,
-                            itemBuilder: (context, index) {
-                              final fair = _searchResults[index];
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: ListTile(
-                                  title: Text(
-                                    fair.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: colorScheme.tertiary,
-                                    ),
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(fair.description),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Organizador: ${fair.organizerName}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: colorScheme.tertiary
-                                              .withOpacity(0.7),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: colorScheme.primary.withOpacity(0.7),
-                                    size: 16,
-                                  ),
-                                  onTap: () => _selectFair(fair),
-                                ),
-                              );
-                            },
-                          ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: OutlinedButton.icon(
+          child: ElevatedButton.icon(
             onPressed: _createNewFair,
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: colorScheme.primary, width: 2),
+            icon: const Icon(Icons.add),
+            label: const Text('Crear nueva feria'),
+            style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            icon: Icon(Icons.add_circle_outline, color: colorScheme.primary),
-            label: Text(
-              'Crear nueva feria',
-              style: TextStyle(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildEmptyState() {
+    if (!_hasSearched) {
+      return const Center(
+          child: Text('Escribe el nombre de una feria para comernzar'));
+    }
+    return const Center(child: Text('No se encontraron resultados'));
   }
 }

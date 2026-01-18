@@ -9,7 +9,6 @@ class Fair extends Entity {
   final String name;
   final String description;
   final String organizerId;
-  final String organizerName;
   final String createdBy;
   final bool isRecurring;
   final DateTime createdAt;
@@ -19,7 +18,6 @@ class Fair extends Entity {
     required this.name,
     required this.description,
     required this.organizerId,
-    required this.organizerName,
     required this.createdBy,
     required this.isRecurring,
     DateTime? createdAt,
@@ -30,7 +28,6 @@ class Fair extends Entity {
       'name': name,
       'description': description,
       'organizerId': organizerId,
-      'organizerName': organizerName,
       'createdBy': createdBy,
       'isRecurring': isRecurring,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -45,7 +42,6 @@ class Fair extends Entity {
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       organizerId: data['organizerId'] ?? '',
-      organizerName: data['organizerName'] ?? '',
       createdBy: data['createdBy'] ?? '',
       isRecurring: data['isRecurring'] ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -58,7 +54,6 @@ class Fair extends Entity {
     String? name,
     String? description,
     String? organizerId,
-    String? organizerName,
     String? createdBy,
     bool? isRecurring,
     DateTime? createdAt,
@@ -68,7 +63,6 @@ class Fair extends Entity {
       name: name ?? this.name,
       description: description ?? this.description,
       organizerId: organizerId ?? this.organizerId,
-      organizerName: organizerName ?? this.organizerName,
       createdBy: createdBy ?? this.createdBy,
       isRecurring: isRecurring ?? this.isRecurring,
       createdAt: createdAt ?? this.createdAt,
@@ -77,7 +71,7 @@ class Fair extends Entity {
 
   @override
   String toString() {
-    return 'Fair{id: $id, name: $name, organizer: $organizerName)';
+    return 'Fair{id: $id, name: $name, organizer: $organizerId)';
   }
 
   @override

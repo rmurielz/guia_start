@@ -78,10 +78,9 @@ class FairService {
     // Crear la feria
     final fair = Fair(
       id: '', // El ID será asignado por el repositorio
-      name: request.name,
-      description: request.description,
+      name: request.name.trim(),
+      description: request.description.trim(),
       organizerId: request.organizerId,
-      organizerName: organizer.name,
       isRecurring: request.isRecurring,
       createdBy: request.createdBy,
       createdAt: DateTime.now(),
@@ -117,7 +116,7 @@ class FairService {
 
   /// Busca ferias por nombre
   ///
-  Future<Result<List<Fair>>> searchFairsByName(String query) async {
+  Future<Result<List<Fair>>> searchFairs(String query) async {
     try {
       final fairs = await _fairRepo.searchFairByName(query);
       return Result.success(fairs);
@@ -206,5 +205,26 @@ class FairService {
         fair.name.toLowerCase() == name.toLowerCase() &&
         fair.organizerId == organizerId &&
         fair.id != excludeFairId);
+  }
+
+  Future<Result<List<FairWithOrganizer>>> searchFairWithOrganizer(
+      String query) async {
+    try {
+      final fairs = await _fairRepo.searchFairByName(query);
+      List<FairWithOrganizer> detailResults = [];
+
+      for (var fair in fairs) {
+        final orgResult = await _thirdPartyRepo.getById(fair.organizerId);
+        if (orgResult.isSuccess) {
+          detailResults.add(FairWithOrganizer(
+            fair: fair,
+            organizer: orgResult.data!,
+          ));
+        }
+      }
+      return Result.success(detailResults);
+    } catch (e) {
+      return Result.error('Error al buscar ferias: $e');
+    }
   }
 }
