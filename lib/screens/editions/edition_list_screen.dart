@@ -107,9 +107,12 @@ class _EditionListScreenState extends State<EditionListScreen> {
               builder: (context) => EditionFormScreen(fair: widget.fair),
             ),
           );
-          if (result != null && mounted) {
+
+          if (!context.mounted) return;
+
+          if (result != null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Edition: $result creada')),
+              SnackBar(content: Text('Edidión $result creada')),
             );
           }
         },

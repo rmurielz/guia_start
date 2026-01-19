@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 // Servicio genérico para manejar operaciones CRUD en Firestore con queries optimizados
 
@@ -15,7 +16,7 @@ class FirestoreService {
       final docRef = await _db.collection(collectionPath).add(data);
       return docRef.id;
     } catch (e) {
-      print('Error al agregar documento en $collectionPath: $e');
+      debugPrint('Error al agregar documento en $collectionPath: $e');
       return null;
     }
   }
@@ -28,7 +29,7 @@ class FirestoreService {
       await _db.collection(collectionPath).doc(id).set(data);
       return true;
     } catch (e) {
-      print('Error al crear el documento $id en $collectionPath: $e');
+      debugPrint('Error al crear el documento $id en $collectionPath: $e');
       return false;
     }
   }
@@ -48,7 +49,7 @@ class FirestoreService {
               })
           .toList();
     } catch (e) {
-      print('Error al obtener documentos de $collectionPath: $e');
+      debugPrint('Error al obtener documentos de $collectionPath: $e');
       return [];
     }
   }
@@ -65,7 +66,7 @@ class FirestoreService {
       }
       return null;
     } catch (e) {
-      print('Error al obtener el documento $id de $collectionPath: $e');
+      debugPrint('Error al obtener el documento $id de $collectionPath: $e');
       return null;
     }
   }
@@ -88,7 +89,7 @@ class FirestoreService {
               })
           .toList();
     } catch (e) {
-      print(
+      debugPrint(
           'Error al obtener documentos con filtro WHERE: $field=$value en $collectionPath');
       return [];
     }
@@ -114,7 +115,7 @@ class FirestoreService {
               })
           .toList();
     } catch (e) {
-      print(
+      debugPrint(
           'Error al buscar documentos $field=$searchTerm en $collectionPath: $e');
       return [];
     }
@@ -132,7 +133,8 @@ class FirestoreService {
       await _db.collection(collectionPath).doc(id).update(data);
       return true;
     } catch (e) {
-      print('Error al actualizar documento con ID $id en $collectionPath: $e');
+      debugPrint(
+          'Error al actualizar documento con ID $id en $collectionPath: $e');
       return false;
     }
   }
@@ -145,7 +147,8 @@ class FirestoreService {
       await _db.collection(collectionPath).doc(id).delete();
       return true;
     } catch (e) {
-      print('Error al eliminar documento con ID $id de $collectionPath: $e');
+      debugPrint(
+          'Error al eliminar documento con ID $id de $collectionPath: $e');
       return false;
     }
   }

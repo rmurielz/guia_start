@@ -130,6 +130,35 @@ class ParticipationService {
     return await _participationRepo.getParticipationsByUserId(userId);
   }
 
+  /// Obtiene los detalles completos de una participación (Feria + Edición)
+  Future<Result<ParticipationDetails>> getParticipationDetails(
+      String participationId) async {
+    try {
+      // 1.  Obtener la participación
+      final partResult = await _participationRepo.getById(participationId);
+      if (partResult.isError)
+        return Result.error('Participación no encontrada');
+      final participation = partResult.data!;
+
+      // 2.  Obtener la feria relacionada
+      final fairResult = await _fairRepo.getById(participation.fairId);
+      if (fairResult.isError) return Result.error('Feria no encontrada');
+
+      // 3.  Obtener la edición relacionada
+      final editionResult = await _editionRepo.getById(participation.editionId);
+      if (editionResult.isError) return Result.error('Edición no encontrada');
+
+      // 4.  Devolver el combo (DTO)
+      return Result.success(ParticipationDetails(
+        participation: participation,
+        fair: fairResult.data!,
+        edition: editionResult.data!,
+      ));
+    } catch (e) {
+      return Result.error('Error al obtener detalles de la participación: $e');
+    }
+  }
+
   /// Actualiza una participación existente
   Future<Result<Participation>> updateParticipation(
       Participation updateParticipation) async {
@@ -260,8 +289,9 @@ class ParticipationService {
       String userId) async {
     try {
       final result = await _participationRepo.getParticipationsByUserId(userId);
-      if (result.isError) return Result.error(result.error!);
-
+      if (result.isError) {
+        return Result.error(result.error!);
+      }
       final List<ParticipationDetails> detailedList = [];
 
       for (var participation in result.data!) {

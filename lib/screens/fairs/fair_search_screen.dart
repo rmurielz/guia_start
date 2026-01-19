@@ -3,7 +3,6 @@ import 'package:guia_start/models/fair_model.dart';
 import 'package:guia_start/services/fair_service.dart';
 import 'package:guia_start/screens/fairs/fair_form_screen.dart';
 import 'package:guia_start/screens/editions/edition_list_screen.dart';
-import 'package:guia_start/utils/result.dart';
 
 class FairSearchScreen extends StatefulWidget {
   const FairSearchScreen({super.key});
@@ -69,8 +68,6 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(

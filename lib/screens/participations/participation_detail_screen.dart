@@ -32,7 +32,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
   int _totalContacts = 0;
   double _roi = 0.0;
 
-  String _fairName = '';
+  String _fairName = 'Cargando...';
   String _editionName = '';
 
   @override
@@ -62,6 +62,8 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
           );
       setState(() {
         _isLoadingDetails = false;
+        _fairName = details.fair.name;
+        _editionName = details.edition.name;
       });
     } else if (detailResults.isError && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -184,6 +186,7 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
               fontWeight: FontWeight.bold,
               color: colorScheme.tertiary,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
@@ -193,34 +196,40 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
               color: colorScheme.tertiary.withOpacity(0.7),
             ),
           ),
-          const SizedBox(height: 8),
-          Row(
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              if (widget.participation.boothNumber != null) ...[
-                Icon(
-                  Icons.store,
-                  size: 16,
-                  color: colorScheme.tertiary.withOpacity(0.7),
+              if (widget.participation.boothNumber != null)
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      WidgetSpan(
+                          child: Icon(Icons.store,
+                              size: 16, color: colorScheme.tertiary)),
+                      TextSpan(
+                        text: 'Stand ${widget.participation.boothNumber}',
+                        style: TextStyle(
+                            color: colorScheme.tertiary, fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 4),
-                Text('Stand: ${widget.participation.boothNumber}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colorScheme.tertiary.withOpacity(0.7),
-                    )),
-                const SizedBox(width: 16),
-              ],
-              Icon(
-                Icons.attach_money,
-                size: 16,
-                color: colorScheme.tertiary.withOpacity(0.7),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Costo: \$${widget.participation.participationCost.toStringAsFixed(0)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.tertiary.withOpacity(0.7),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    WidgetSpan(
+                        child: Icon(Icons.attach_money,
+                            size: 16, color: colorScheme.tertiary)),
+                    TextSpan(
+                      text:
+                          ' Costo: ${widget.participation.participationCost.toStringAsFixed(0)}',
+                      style:
+                          TextStyle(color: colorScheme.tertiary, fontSize: 14),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -240,8 +249,10 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
 
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        alignment: WrapAlignment.spaceEvenly,
         children: [
           _buildStatCard('Ventas', '\$${_totalSales.toStringAsFixed(0)}',
               Icons.attach_money, colorScheme),
@@ -262,29 +273,32 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
     IconData icon,
     ColorScheme colorScheme,
   ) {
-    return Column(
-      children: [
-        Icon(icon, size: 24, color: colorScheme.primary),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.tertiary,
+    return SizedBox(
+      width: 150,
+      child: Column(
+        children: [
+          Icon(icon, size: 24, color: colorScheme.primary),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.tertiary,
+            ),
           ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: colorScheme.tertiary.withOpacity(0.7),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.tertiary.withOpacity(0.7),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
-}
+
 
 // ========= TABS =========
 
@@ -366,8 +380,8 @@ class _SalesTab extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: colorScheme.primary,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => SaleFormScreen(
@@ -441,7 +455,7 @@ class _ContactsTab extends StatelessWidget {
                     backgroundColor: colorScheme.secondary,
                     child: const Icon(Icons.person, color: Colors.black),
                   ),
-                  title: Text('Contato: ${contact.thirdPartyId}'),
+                  title: Text('Contacto: ${contact.thirdPartyId}'),
                   subtitle: contact.notes != null
                       ? Text(
                           contact.notes!,
@@ -455,8 +469,8 @@ class _ContactsTab extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: colorScheme.primary,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
@@ -580,8 +594,8 @@ class _VisitorsTab extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: colorScheme.primary,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => VisitorFormScreen(

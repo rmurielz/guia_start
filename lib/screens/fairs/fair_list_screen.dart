@@ -52,17 +52,17 @@ class _FairListScreenState extends State<FairListScreen> {
 
                 // Error
                 if (snapshot.hasData && snapshot.data!.isSuccess) {
-                  final ListDetails = snapshot.data!.data!;
+                  final listDetails = snapshot.data!.data!;
 
-                  if (ListDetails.isEmpty) {
+                  if (listDetails.isEmpty) {
                     return _buildEmpyState(context);
                   }
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: ListDetails.length,
+                    itemCount: listDetails.length,
                     itemBuilder: (context, index) {
                       return _buildParticipationCard(
-                          context, ListDetails[index]);
+                          context, listDetails[index]);
                     },
                   );
                 }
@@ -112,12 +112,10 @@ class _FairListScreenState extends State<FairListScreen> {
                   const SizedBox(width: 4),
                   Text(details.edition.location,
                       style: const TextStyle(fontSize: 13)),
-                  if (details.participation.participationCost != null) ...[
-                    const SizedBox(width: 12),
-                    const Icon(Icons.attach_money, size: 14),
-                    const SizedBox(width: 4),
-                    Text('Costo: $details.participation.participationCost}'),
-                  ],
+                  const SizedBox(width: 12),
+                  const Icon(Icons.attach_money, size: 14),
+                  const SizedBox(width: 4),
+                  Text('Costo: $details.participation.participationCost}'),
                 ],
               ),
             ],
