@@ -198,100 +198,99 @@ class FirestoreDatasource {
     String collectionPath,
     String id,
   ) {
-    return _db.collection(collectionPath).doc(id).snapshots().map((doc){
+    return _db.collection(collectionPath).doc(id).snapshots().map((doc) {
       if (!doc.exists) return null;
-      return {'id': doc.id, ...doc.data()!}
+      return {'id': doc.id, ...doc.data()!};
     });
   }
 
 // ====== BATCH OPERATIONS =======
 
-/// Ejecuta múltiples operaciones en batch
-Future<void> batchWrite(List<BatchOperation> operations) async {
-  try{
-    final batch = _db.batch();
-    
-    for (final operation in operations) {
-      final docRef = _db.collection(operation.collectionPath).doc(operation.id);
+  /// Ejecuta múltiples operaciones en batch
+  Future<void> batchWrite(List<BatchOperation> operations) async {
+    try {
+      final batch = _db.batch();
 
-      switch (operation.type){
-        case BatchOperationType.set:
-        batch.set(docRef, operation.data!);
-        break;
-        case BatchOperationType.update:
-        batch.update(docRef, operation.data!);
-        break;
-        case BatchOperationType.delete:
-        batch.delete(docRef);
-        break;
+      for (final operation in operations) {
+        final docRef =
+            _db.collection(operation.collectionPath).doc(operation.id);
+
+        switch (operation.type) {
+          case BatchOperationType.set:
+            batch.set(docRef, operation.data!);
+            break;
+          case BatchOperationType.update:
+            batch.update(docRef, operation.data!);
+            break;
+          case BatchOperationType.delete:
+            batch.delete(docRef);
+            break;
+        }
       }
+      await batch.commit();
+    } catch (e) {
+      debugPrint('Error executing batch operations: $e');
+      rethrow;
     }
-    await batch.commit();
-  } catch (e) {
-    debugPrint('Error executing batch operations: $e');
-    rethrow;
   }
-}
 
 //========= SUBCOLLECTIONS =========
 
-/// Agrega un documento a una subcolección
-Future<String?> addToSubcollection(
+  /// Agrega un documento a una subcolección
+  Future<String?> addToSubcollection(
+    String parentPath,
+    String parentId,
+    String subcollectionName,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final docRef = await _db
+          .collection(parentPath)
+          .doc(parentId)
+          .collection(subcollectionName)
+          .add(data);
+      return docRef.id;
+    } catch (e) {
+      debugPrint('Error adding to subcollection $subcollectionName: $e');
+      rethrow;
+    }
+  }
 
-  String parentPath,
-  String parentId,
-  String subcollectionName,
-  Map<String, dynamic> data, 
-) async {
-  try {
-  final docRef = await _db
-  .collection(parentPath)
-  .doc(parentId)
-  .collection(subcollectionName)
-  .add(data);
-  return docRef.id;
-} catch (e){
-  debugPrint('Error adding to subcollection $subcollectionName: $e');
-  rethrow;
-}
-}
-
-/// Stream de subcolección
-Stream<List<Map<String, dynamic>>> streamSubcollection(
-String parentPath,
-String parentId,
-String subcollectionName,
-) {
-  return _db
-      .collection(parentPath)
-      .doc(parentId)
-      .collection(subcollectionName)
-      .snapshots()
-      .map((snapshot) {
-    return snapshot.docs
-      .map((doc) => {
-        'id': doc.id,
-        ...doc.data(),
-      })
-    .toList();
-  });
-}
+  /// Stream de subcolección
+  Stream<List<Map<String, dynamic>>> streamSubcollection(
+    String parentPath,
+    String parentId,
+    String subcollectionName,
+  ) {
+    return _db
+        .collection(parentPath)
+        .doc(parentId)
+        .collection(subcollectionName)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => {
+                'id': doc.id,
+                ...doc.data(),
+              })
+          .toList();
+    });
+  }
 }
 
 // ======== HELPERS ========
 
 enum BatchOperationType { set, update, delete }
 
-class BatchOperation{
+class BatchOperation {
   final String collectionPath;
   final String id;
   final BatchOperationType type;
   final Map<String, dynamic>? data;
 
-  BatchOperation({
-    required this.collectionPath,
-    required this.id,
-    required this.type,
-    this.data
-  });
+  BatchOperation(
+      {required this.collectionPath,
+      required this.id,
+      required this.type,
+      this.data});
 }
