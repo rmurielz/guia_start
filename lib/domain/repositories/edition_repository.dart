@@ -1,28 +1,32 @@
-import 'package:guia_start/models/edition_model.dart';
-import 'package:guia_start/repositories/base_repository.dart';
+import 'package:guia_start/core/utils/result.dart';
+import 'package:guia_start/domain/entities/edition.dart';
 
-class EditionRepository extends BaseRepository<Edition> {
-  @override
-  String get collectionPath => 'editions';
+/// Contrato para operaciones de Edition
+abstract class EditionRepository {
+  /// Crea una nueva edición
+  Future<Result<Edition>> create(Edition edition);
 
-  @override
-  Edition Function(Map<String, dynamic>) get fromMap => Edition.fromMap;
+  ///Obtiene una edición por ID
+  Future<Result<Edition>> getById(String id);
 
-  @override
-  Map<String, dynamic> Function(Edition) get toMap => (e) => e.toMap();
+  ///Obtiene todas las ediciones
+  Future<Result<List<Edition>>> getAll();
 
-  Future<List<Edition>> getEditionsByFairId(String fairId) async {
-    final raw = await firestoreService.getDocumentsWhere(
-      collectionPath,
-      'fairId',
-      fairId,
-    );
-    return raw.map((m) => fromMap(m)).toList();
-  }
+  /// Obtiene ediciones de una feria específica
+  Future<Result<List<Edition>>> getByFairId(String fairId);
 
-  Stream<List<Edition>> streamEditionsByFairId(String fairId) {
-    return firestoreService
-        .streamCollectionWhere(collectionPath, 'fairId', fairId)
-        .map((list) => list.map((m) => fromMap(m)).toList());
-  }
+  /// Obtiene ediciones Activas
+  Future<Result<List<Edition>>> getActive();
+
+  /// Actualiza una edición
+  Future<Result<Edition>> update(Edition edition);
+
+  /// Elimina una edición
+  Future<Result<void>> delete(String id);
+
+  /// Stream de ediciones por feria
+  Stream<List<Edition>> watchByfairId(String fairId);
+
+  /// Stream de una edición específica
+  Stream<Edition?> watchById(String id);
 }

@@ -1,41 +1,32 @@
-import 'package:guia_start/models/third_party_model.dart';
-import 'package:guia_start/repositories/base_repository.dart';
+import 'package:guia_start/core/utils/result.dart';
+import 'package:guia_start/domain/entities/third_party.dart';
 
-class ThirdPartyRepository extends BaseRepository<ThirdParty> {
-  @override
-  String get collectionPath => 'thirdParties';
+/// Contrato para operaciones de ThirdParty
+abstract class ThirdPartyRepository {
+  /// Crea un nuevo tercero
+  Future<Result<ThirdParty>> create(ThirdParty thirdParty);
 
-  @override
-  ThirdParty Function(Map<String, dynamic>) get fromMap => ThirdParty.fromMap;
+  /// Obtiene un tercero por ID
+  Future<Result<ThirdParty>> getById(String id);
 
-  @override
-  Map<String, dynamic> Function(ThirdParty) get toMap => (tp) => tp.toMap();
+  /// Obtiene todos los terceros
+  Future<Result<List<ThirdParty>>> getAll();
 
-  String _enumToString(ThirdPartyType type) {
-    return type.toString().split('.').last;
-  }
+  /// Busca proveedores por nombre
+  Future<Result<List<ThirdParty>>> searchByName(String query);
 
-  Future<List<ThirdParty>> getThirdPartiesById(ThirdPartyType type) async {
-    final raw = await firestoreService.getDocumentsWhere(
-      collectionPath,
-      'type',
-      _enumToString(type),
-    );
-    return raw.map((m) => fromMap(m)).toList();
-  }
+  /// Obtiene terceros por tipo
+  Future<Result<List<ThirdParty>>> getByType(String type);
 
-  Future<List<ThirdParty>> searchThirdPartiesByName(String query) async {
-    final result = await getAll();
-    if (result.isError) return [];
+  /// Actualiza un proveedor
+  Future<Result<ThirdParty>> update(ThirdParty thirdParty);
 
-    return result.data!
-        .where((tp) => tp.name.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-  }
+  /// Elimina un proveedor
+  Future<Result<void>> delete(String id);
 
-  Stream<List<ThirdParty>> streamThirdPartiesByType(ThirdPartyType type) {
-    return firestoreService
-        .streamCollectionWhere(collectionPath, 'type', _enumToString(type))
-        .map((list) => list.map((m) => fromMap(m)).toList());
-  }
+  /// Stream de todos los terceros por tipo
+  Stream<List<ThirdParty>> watchByType(ThirdPartyType type);
+
+  /// Stream de un tercero específico
+  Stream<ThirdParty?> watchById(String id);
 }

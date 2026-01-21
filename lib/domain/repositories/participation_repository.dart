@@ -1,175 +1,67 @@
-import 'package:guia_start/models/participation_model.dart';
-import 'package:guia_start/models/contact_model.dart';
-import 'package:guia_start/models/sale_model.dart';
-import 'package:guia_start/models/visitor_model.dart';
-import 'package:guia_start/repositories/base_repository.dart';
-import 'package:guia_start/utils/result.dart';
+import 'package:guia_start/core/utils/result.dart';
+import 'package:guia_start/domain/entities/participation.dart';
+import 'package:guia_start/domain/entities/contact.dart';
+import 'package:guia_start/domain/entities/sale.dart';
+import 'package:guia_start/domain/entities/visitor.dart';
 
-class ParticipationRepository extends BaseRepository<Participation> {
-  @override
-  String get collectionPath => 'participations';
+/// Contrato para operaciones de participación
+abstract class ParticipationRepository {
+  // ======= PARTICIPACIONES =======
 
-  @override
-  Participation Function(Map<String, dynamic>) get fromMap =>
-      Participation.fromMap;
+  /// Crea una nueva participación
+  Future<Result<Participation>> create(Participation participation);
 
-  @override
-  Map<String, dynamic> Function(Participation) get toMap => (p) => p.toMap();
+  /// Obtiene una participación por ID
+  Future<Result<Participation>> getById(String id);
 
-  Future<Result<Participation>> saveParticipation(
-      Participation participation) async {
-    if (participation.isNew) {
-      return await add(participation);
-    } else {
-      final updateResult = await update(participation.id, participation);
-      return updateResult.isSuccess
-          ? Result.success(participation)
-          : Result.error(updateResult.error!);
-    }
-  }
+  /// Obtiene todas las participaciones
+  Future<Result<List<Participation>>> getAll();
 
-  Future<Result<List<Participation>>> getParticipationsByUserId(
-      String userId) async {
-    try {
-      final raw = await firestoreService.getDocumentsWhere(
-          collectionPath, 'userId', userId);
-      final items = raw.map((m) => fromMap(m)).toList();
-      return Result.success(items);
-    } catch (e) {
-      return Result.error('Error al obtener participaciones $e');
-    }
-  }
+  /// Obtiene participaciones de un usuario
+  Future<Result<List<Participation>>> getByUserId(String userId);
 
-  Stream<List<Participation>> streamParticipationsByUserId(String userId) {
-    return firestoreService
-        .streamCollectionWhere(collectionPath, 'userId', userId)
-        .map((list) => list.map((m) => fromMap(m)).toList());
-  }
+  /// Obtiene participaciones de una edición
+  Future<Result<List<Participation>>> getByEditionId(String editionId);
 
-  // ========== MÉTODOS PARA SUBCOLECCIONES ==========
+  /// Actualiza una participación
+  Future<Result<Participation>> update(Participation participation);
+
+  ///Elimina una participación
+  Future<Result<void>> delete(String id);
+
+  /// Stream de participaciones de un usuario
+  Stream<List<Participation>> watchByUserId(String userId);
+
+  // ======= Contactos (subcoleection) =======
 
   /// Agrega un contacto a una participación
-  Future<Result<Contact>> addContact(
-    String participationId,
-    Contact contact,
-  ) async {
-    try {
-      // Crear nuevo contacto con participationId
-      final contactWithParticipation = Contact(
-        id: contact.id,
-        participationId: participationId,
-        thirdPartyId: contact.thirdPartyId,
-        notes: contact.notes,
-        createdAt: contact.createdAt,
-      );
+  Future<Result<Contact>> addContact(String participationId, Contact contact);
 
-      final id = await firestoreService.addDocument(
-        '$collectionPath/$participationId/contacts',
-        contactWithParticipation.toMap(),
-      );
-
-      if (id == null) {
-        return Result.error('Error al agregar el contacto');
-      }
-      return Result.success(
-        contactWithParticipation.copyWith(id: id),
-      );
-    } catch (e) {
-      return Result.error('Error al agregar el contacto $e');
-    }
-  }
+  /// Obtiene contactos de una participación
+  Future<Result<List<Contact>>> getContacts(String participationId);
 
   /// Stream de contactos de una participación
-  Stream<List<Contact>> streamContacts(String participationId) {
-    return firestoreService
-        .streamCollection(
-          '$collectionPath/$participationId/contacts',
-        )
-        .map((list) => list.map((m) => Contact.fromMap(m)).toList());
-  }
+  Stream<List<Contact>> watchContacts(String participationId);
+
+  // ======= Ventas (subcollection) =======
 
   /// Agrega una venta a una participación
-  Future<Result<Sale>> addSale(String participationId, Sale sale) async {
-    try {
-      final saleWithParticipation = Sale(
-        id: sale.id,
-        participationId: participationId,
-        amount: sale.amount,
-        paymentMethod: sale.paymentMethod,
-        products: sale.products,
-        contactId: sale.contactId,
-        notes: sale.notes,
-        createdAt: sale.createdAt,
-      );
+  Future<Result<Sale>> addSale(String participationId, Sale sale);
 
-      final id = await firestoreService.addDocument(
-        '$collectionPath/$participationId/sales',
-        saleWithParticipation.toMap(),
-      );
+  /// Obtiene ventas de una participación
+  Future<Result<List<Sale>>> getSales(String participationId);
 
-      if (id == null) {
-        return Result.error('Error al agregar la venta');
-      }
-      return Result.success(
-        saleWithParticipation.copyWith(id: id),
-      );
-    } catch (e) {
-      return Result.error('Error al agregar la venta $e');
-    }
-  }
+  /// Stream de ventas de una participación
+  Stream<List<Sale>> watchSales(String participationId);
 
-  //// Stream de ventas de una participación
-  Stream<List<Sale>> streamSales(String participationId) {
-    return firestoreService
-        .streamCollection(
-          '$collectionPath/$participationId/sales',
-        )
-        .map((list) => list.map((m) => Sale.fromMap(m)).toList());
-  }
+// ======= Visitantes (subcollection) =======
 
   /// Agrega un registro de visitante a una participación
-  Future<Result<Visitor>> addVisitor(
-    String participationId,
-    Visitor visitor,
-  ) async {
-    try {
-      final visitorWithParticipation = Visitor(
-        id: visitor.id,
-        participationId: participationId,
-        count: visitor.count,
-        notes: visitor.notes,
-        timestamp: visitor.timestamp,
-      );
+  Future<Result<Visitor>> addVisitor(String participationId, Visitor visitor);
 
-      final id = await firestoreService.addDocument(
-        '$collectionPath/$participationId/visitors',
-        visitorWithParticipation.toMap(),
-      );
-
-      if (id == null) {
-        return Result.error('Error al agregar el visitante');
-      }
-      return Result.success(
-        visitorWithParticipation.copyWith(id: id),
-      );
-    } catch (e) {
-      return Result.error('Error al agregar el visitante $e');
-    }
-  }
+  /// Obtiene visitantes de una participación
+  Future<Result<List<Visitor>>> getVisitors(String participationId);
 
   /// Stream de visitantes de una participación
-  Stream<List<Visitor>> streamVisitors(String participationId) {
-    return firestoreService
-        .streamCollection(
-          '$collectionPath/$participationId/visitors',
-        )
-        .map((list) => list.map((m) => Visitor.fromMap(m)).toList());
-  }
-
-  /// Agrega una participación (método legacy para compatibilidad)
-  @Deprecated('Use add ()directly from BaseRepository instead')
-  Future<Result<Participation>> createParticipation(
-      Participation participation) async {
-    return await add(participation);
-  }
+  Stream<List<Visitor>> watchVisitors(String participationId);
 }

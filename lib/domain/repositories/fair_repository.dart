@@ -1,25 +1,32 @@
-// lib/repositories/fair_repository.dart
+import 'package:guia_start/core/utils/result.dart';
+import 'package:guia_start/domain/entities/fair.dart';
 
-import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/repositories/base_repository.dart';
+/// Contrato de operaciones de Fair
+abstract class FairRepository {
+  /// Crea una feria
+  Future<Result<Fair>> create(Fair fair);
 
-class FairRepository extends BaseRepository<Fair> {
-  @override
-  String get collectionPath => 'fairs';
+  /// Obtiene una feria por ID
+  Future<Result<Fair>> getById(String id);
 
-  @override
-  Fair Function(Map<String, dynamic>) get fromMap => Fair.fromMap;
+  /// Obtiene todas las ferias
+  Future<Result<List<Fair>>> getAll();
 
-  @override
-  Map<String, dynamic> Function(Fair) get toMap => (fair) => fair.toMap();
+  /// Busca ferias por nombre
+  Future<Result<List<Fair>>> searchByName(String query);
 
-  /// Buscar ferias por nombre
-  Future<List<Fair>> searchFairByName(String query) async {
-    final result = await getAll();
-    if (result.isError) return [];
+  ///Obtiene ferias de un organizador específico
+  Future<Result<List<Fair>>> getByOrganizer(String organizerId);
 
-    return result.data!
-        .where((f) => f.name.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-  }
+  /// Actualiza una feria existente
+  Future<Result<Fair>> update(Fair fair);
+
+  ///Elimina una feria
+  Future<Result<void>> delete(String id);
+
+  /// Stream de todas las ferias
+  Stream<List<Fair>> watchAll();
+
+  /// Stream de una feria específica
+  Stream<Fair?> watchById(String id);
 }
