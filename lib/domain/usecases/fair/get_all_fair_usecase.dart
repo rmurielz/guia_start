@@ -3,16 +3,13 @@ import 'package:guia_start/core/utils/result.dart';
 import 'package:guia_start/domain/entities/fair.dart';
 import 'package:guia_start/domain/repositories/fair_repository.dart';
 
-class SearchFairsUsecase implements UseCase<List<Fair>, String> {
+class GetAllFairUseCase implements UseCase<List<Fair>, NoParams> {
   final FairRepository _repository;
 
-  SearchFairsUsecase(this._repository);
+  GetAllFairUseCase(this._repository);
 
   @override
-  Future<Result<List<Fair>>> call(String query) async {
-    if (query.trim().isEmpty) {
-      return Result.success([]);
-    }
-    return await _repository.searchByName(query.trim());
+  Future<Result<List<Fair>>> call(NoParams params) async {
+    return await _repository.getAll();
   }
 }
