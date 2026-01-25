@@ -25,7 +25,7 @@ abstract class EditionRepository {
   Future<Result<void>> delete(String id);
 
   /// Stream de ediciones por feria
-  Stream<List<Edition>> watchByfairId(String fairId);
+  Stream<List<Edition>> watchByFairId(String fairId);
 
   /// Stream de una edición específica
   Stream<Edition?> watchById(String id);

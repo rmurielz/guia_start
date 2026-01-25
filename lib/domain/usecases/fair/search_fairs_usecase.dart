@@ -10,9 +10,6 @@ class SearchFairsUsecase implements UseCase<List<Fair>, String> {
 
   @override
   Future<Result<List<Fair>>> call(String query) async {
-    if (query.trim().isEmpty) {
-      return Result.success([]);
-    }
-    return await _repository.searchByName(query.trim());
+    return await _repository.searchByName(query);
   }
 }

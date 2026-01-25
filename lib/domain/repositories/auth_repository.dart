@@ -1,8 +1,7 @@
 import 'package:guia_start/core/utils/result.dart';
-import 'package:guia_start/domain/entities/user_profile.dart';
 
 /// Contrato para operaciones de autenticación
-abstract class AuthRepositoory {
+abstract class AuthRepository {
   /// Obtiene el ID del usuario actual
   String? getCurrentUserId();
 
@@ -27,7 +26,7 @@ abstract class AuthRepositoory {
   Future<Result<void>> sendEmailVerification();
 
   /// Envía email para recuperar contraseña
-  Future<Result<void>> sendEmailResetPassword();
+  Future<Result<void>> sendPasswordResetEmail(String email);
 
   /// Stream del estado actual de autenticación (userID o null)
   Stream<String?> watchAuthState();

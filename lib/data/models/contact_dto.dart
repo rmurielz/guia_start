@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:guia_start/domain/entities/contact.dart';
 
-class ContactDto {
+class ContactDTO {
   final String id;
   final String participationId;
   final String thirdPartyId;
   final String? notes;
   final Timestamp createdAt;
 
-  ContactDto({
+  ContactDTO({
     required this.id,
     required this.participationId,
     required this.thirdPartyId,
@@ -27,8 +27,8 @@ class ContactDto {
   }
 
   /// Crear desde Map de Firebase
-  factory ContactDto.fromMap(Map<String, dynamic> map) {
-    return ContactDto(
+  factory ContactDTO.fromMap(Map<String, dynamic> map) {
+    return ContactDTO(
       id: map['id'] ?? '',
       participationId: map['participationId'] ?? '',
       thirdPartyId: map['thirdPartyId'] ?? '',
@@ -49,8 +49,8 @@ class ContactDto {
   }
 
   /// Crear desde Entity de dominio
-  factory ContactDto.fromEntity(Contact entity) {
-    return ContactDto(
+  factory ContactDTO.fromEntity(Contact entity) {
+    return ContactDTO(
       id: entity.id,
       participationId: entity.participationId,
       thirdPartyId: entity.thirdPartyId,

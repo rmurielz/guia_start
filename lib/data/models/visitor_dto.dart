@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:guia_start/domain/entities/visitor.dart';
 
-class VisitorDto {
+class VisitorDTO {
   final String id;
   final String participationId;
   final int count;
   final String? notes;
   final Timestamp timestamp;
 
-  VisitorDto({
+  VisitorDTO({
     required this.id,
     required this.participationId,
     required this.count,
@@ -27,8 +27,8 @@ class VisitorDto {
   }
 
   /// Crear desde Map de Firebase
-  factory VisitorDto.fromMap(Map<String, dynamic> map) {
-    return VisitorDto(
+  factory VisitorDTO.fromMap(Map<String, dynamic> map) {
+    return VisitorDTO(
       id: map['id'] ?? '',
       participationId: map['participationId'] ?? '',
       count: map['count'] ?? 1,
@@ -49,8 +49,8 @@ class VisitorDto {
   }
 
   /// Crear desde Entity de dominio
-  factory VisitorDto.fromEntity(Visitor entity) {
-    return VisitorDto(
+  factory VisitorDTO.fromEntity(Visitor entity) {
+    return VisitorDTO(
       id: entity.id,
       participationId: entity.participationId,
       count: entity.count,

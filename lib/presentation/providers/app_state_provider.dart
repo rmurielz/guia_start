@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:guia_start/models/participation_model.dart';
-import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/models/edition_model.dart';
-import 'package:guia_start/models/third_party_model.dart';
-import 'package:guia_start/models/user_profile_model.dart';
+import 'package:guia_start/domain/entities/participation.dart';
+import 'package:guia_start/domain/entities/fair.dart';
+import 'package:guia_start/domain/entities/edition.dart';
+import 'package:guia_start/domain/entities/third_party.dart';
+import 'package:guia_start/domain/entities/user_profile.dart';
 
 class AppStateProvider extends ChangeNotifier {
   // ========= ESTADO =========

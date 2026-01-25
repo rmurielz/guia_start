@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:guia_start/domain/entities/user_profile.dart';
 
-class UserProfileDto {
+class UserProfileDTO {
   final String id;
   final String name;
   final String email;
@@ -10,7 +10,7 @@ class UserProfileDto {
   final Timestamp createdAt;
   final Timestamp? lastLoginAt;
 
-  UserProfileDto({
+  UserProfileDTO({
     required this.id,
     required this.name,
     required this.email,
@@ -33,8 +33,8 @@ class UserProfileDto {
   }
 
   /// Crear desde Map de Firebase
-  factory UserProfileDto.fromMap(Map<String, dynamic> map) {
-    return UserProfileDto(
+  factory UserProfileDTO.fromMap(Map<String, dynamic> map) {
+    return UserProfileDTO(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
@@ -59,8 +59,8 @@ class UserProfileDto {
   }
 
   /// Crear desde Entity de dominio
-  factory UserProfileDto.fromEntity(UserProfile entity) {
-    return UserProfileDto(
+  factory UserProfileDTO.fromEntity(UserProfile entity) {
+    return UserProfileDTO(
       id: entity.id,
       name: entity.name,
       email: entity.email,

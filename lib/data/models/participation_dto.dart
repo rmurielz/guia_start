@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:guia_start/domain/entities/participation.dart';
 
-class ParticipationDto {
+class ParticipationDTO {
   final String id;
   final String userId;
   final String fairId;
@@ -10,7 +10,7 @@ class ParticipationDto {
   final double participationCost;
   final Timestamp createdAt;
 
-  ParticipationDto({
+  ParticipationDTO({
     required this.id,
     required this.userId,
     required this.fairId,
@@ -33,8 +33,8 @@ class ParticipationDto {
   }
 
   /// Crear desde Map de Firebase
-  factory ParticipationDto.fromMap(Map<String, dynamic> map) {
-    return ParticipationDto(
+  factory ParticipationDTO.fromMap(Map<String, dynamic> map) {
+    return ParticipationDTO(
       id: map['id'] ?? '',
       userId: map['userId'] ?? '',
       fairId: map['fairId'] ?? '',
@@ -59,8 +59,8 @@ class ParticipationDto {
   }
 
   /// Crear desde Entity de dominio
-  factory ParticipationDto.fromEntity(Participation entity) {
-    return ParticipationDto(
+  factory ParticipationDTO.fromEntity(Participation entity) {
+    return ParticipationDTO(
       id: entity.id,
       userId: entity.userId,
       fairId: entity.fairId,

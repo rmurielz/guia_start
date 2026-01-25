@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:guia_start/domain/entities/edition.dart';
 
-class EditionDto {
+class EditionDTO {
   final String id;
   final String fairId;
   final String name;
@@ -12,7 +12,7 @@ class EditionDto {
   final Timestamp createdAt;
   final String status;
 
-  EditionDto({
+  EditionDTO({
     required this.id,
     required this.fairId,
     required this.name,
@@ -37,8 +37,8 @@ class EditionDto {
     };
   }
 
-  factory EditionDto.fromMap(Map<String, dynamic> map) {
-    return EditionDto(
+  factory EditionDTO.fromMap(Map<String, dynamic> map) {
+    return EditionDTO(
       id: map['id'] ?? '',
       fairId: map['fairId'] ?? '',
       name: map['name'] ?? '',
@@ -67,8 +67,8 @@ class EditionDto {
   }
 
   /// Crear desde Entity de dominio
-  factory EditionDto.fromEntity(Edition entity) {
-    return EditionDto(
+  factory EditionDTO.fromEntity(Edition entity) {
+    return EditionDTO(
       id: entity.id,
       fairId: entity.fairId,
       name: entity.name,

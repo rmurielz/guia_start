@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:guia_start/domain/entities/third_party.dart';
 
-class ThirdPartyDto {
+class ThirdPartyDTO {
   final String id;
   final String name;
   final String type;
@@ -12,7 +12,7 @@ class ThirdPartyDto {
   final String createdBy;
   final Timestamp createdAt;
 
-  ThirdPartyDto({
+  ThirdPartyDTO({
     required this.id,
     required this.name,
     required this.type,
@@ -39,8 +39,8 @@ class ThirdPartyDto {
   }
 
   /// Crear desde Map de Firebase
-  factory ThirdPartyDto.fromMap(Map<String, dynamic> map) {
-    return ThirdPartyDto(
+  factory ThirdPartyDTO.fromMap(Map<String, dynamic> map) {
+    return ThirdPartyDTO(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       type: map['type'] ?? '',
@@ -69,8 +69,8 @@ class ThirdPartyDto {
   }
 
   /// Crear desde Entity de dominio
-  factory ThirdPartyDto.fromEntity(ThirdParty entity) {
-    return ThirdPartyDto(
+  factory ThirdPartyDTO.fromEntity(ThirdParty entity) {
+    return ThirdPartyDTO(
       id: entity.id,
       name: entity.name,
       type: entity.type.name,

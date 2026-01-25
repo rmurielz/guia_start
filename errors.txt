@@ -1,0 +1,270 @@
+Analyzing guia_start...                                         
+
+  error - Undefined class 'CreateEditionUseCase' - lib\core\di\injection_container.dart:100:14 - undefined_class
+  error - The method 'CreateEditionUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:100:58 - undefined_method
+  error - Undefined class 'GetEditionsByFairUseCase' - lib\core\di\injection_container.dart:105:14 - undefined_class
+  error - The method 'GetEditionsByFairUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:106:7 - undefined_method
+  error - Undefined class 'GetAllFairsUseCase' - lib\core\di\injection_container.dart:121:14 - undefined_class
+  error - The method 'GetAllFairsUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:122:7 - undefined_method
+  error - Undefined class 'GetFairWithOrganizerUseCase' - lib\core\di\injection_container.dart:126:14 - undefined_class
+  error - The method 'GetFairWithOrganizerUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:127:7 - undefined_method
+  error - Undefined class 'SearchFairsUseCase' - lib\core\di\injection_container.dart:132:14 - undefined_class
+  error - The method 'SearchFairsUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:133:7 - undefined_method
+  error - Undefined class 'SearchFairsWithOrganizerUseCase' - lib\core\di\injection_container.dart:135:14 - undefined_class
+  error - The method 'SearchFairsWithOrganizerUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:136:7 - undefined_method
+  error - Undefined class 'UpdateFairUseCase' - lib\core\di\injection_container.dart:141:14 - undefined_class
+  error - The method 'UpdateFairUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:142:7 - undefined_method
+  error - Undefined class 'AddContactUseCase' - lib\core\di\injection_container.dart:146:14 - undefined_class
+  error - The method 'AddContactUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:147:7 - undefined_method
+  error - Undefined class 'CreateParticipationUseCase' - lib\core\di\injection_container.dart:158:14 - undefined_class
+  error - The method 'CreateParticipationUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:159:7 - undefined_method
+  error - Undefined class 'GetUserParticipationsUseCase' - lib\core\di\injection_container.dart:168:14 - undefined_class
+  error - The method 'GetUserParticipationsUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:169:7 - undefined_method
+  error - Undefined class 'CreateThirdPartyUseCase' - lib\core\di\injection_container.dart:177:14 - undefined_class
+  error - The method 'CreateThirdPartyUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:178:7 - undefined_method
+  error - Undefined class 'SearchThirdPartyUseCase' - lib\core\di\injection_container.dart:180:14 - undefined_class
+  error - The method 'SearchThirdPartyUseCase' isn't defined for the type 'InjectionContainer' - lib\core\di\injection_container.dart:181:7 - undefined_method
+   info - Dangling library doc comment - lib\core\error\failures.dart:1:1 - dangling_library_doc_comments
+   info - The type parameter name 'Type' matches a visible type name - lib\core\usecases\usecase.dart:8:24 - avoid_types_as_parameter_names
+   info - Angle brackets will be interpreted as HTML - lib\data\datasources\firestore_datasource.dart:9:18 - unintended_html_in_doc_comment
+   info - Unnecessary 'this.' qualifier - lib\domain\entities\contact.dart:30:37 - unnecessary_this
+  error - Target of URI doesn't exist: 'package:guia_start/screens/auth/auth_wrapper.dart' - lib\main.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/providers/app_state_provider.dart' - lib\main.dart:6:8 - uri_does_not_exist
+  error - The method 'AppStateProvider' isn't defined for the type 'GuiaStartApp' - lib\main.dart:38:22 - undefined_method
+  error - The name 'AuthWrapper' isn't a class - lib\main.dart:43:21 - creation_with_non_type
+  error - Target of URI doesn't exist: 'package:guia_start/screens/auth/register_screen.dart' - lib\presentation\screens\auth\login_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/auth_service.dart' - lib\presentation\screens\auth\login_screen.dart:3:8 - uri_does_not_exist
+  error - Undefined class 'AuthService' - lib\presentation\screens\auth\login_screen.dart:13:9 - undefined_class
+  error - The method 'AuthService' isn't defined for the type '_LoginScreenState' - lib\presentation\screens\auth\login_screen.dart:13:36 - undefined_method
+  error - The name 'RegisterScreen' isn't a class - lib\presentation\screens\auth\login_screen.dart:71:53 - creation_with_non_type
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\presentation\screens\auth\register_screen.dart:2:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_RegisterScreenState' - lib\presentation\screens\auth\register_screen.dart:43:27 - undefined_method
+  error - Target of URI doesn't exist: 'package:guia_start/models/contact_model.dart' - lib\presentation\screens\contacts\contact_form_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/models/third_party_model.dart' - lib\presentation\screens\contacts\contact_form_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/repositories/participation_repository.dart' - lib\presentation\screens\contacts\contact_form_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/repositories/third_party_repository.dart' - lib\presentation\screens\contacts\contact_form_screen.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'ParticipationRepository' - lib\presentation\screens\contacts\contact_form_screen.dart:18:9 - undefined_class
+  error - The method 'ParticipationRepository' isn't defined for the type '_ContactFormScreenState' - lib\presentation\screens\contacts\contact_form_screen.dart:18:54 - undefined_method
+  error - Undefined class 'ThirdPartyRepository' - lib\presentation\screens\contacts\contact_form_screen.dart:19:9 - undefined_class
+  error - The method 'ThirdPartyRepository' isn't defined for the type '_ContactFormScreenState' - lib\presentation\screens\contacts\contact_form_screen.dart:19:48 - undefined_method
+  error - Undefined class 'ThirdParty' - lib\presentation\screens\contacts\contact_form_screen.dart:24:3 - undefined_class
+  error - The name 'ThirdParty' isn't a type, so it can't be used as a type argument - lib\presentation\screens\contacts\contact_form_screen.dart:25:8 - non_type_as_type_argument
+  error - Undefined class 'ThirdParty' - lib\presentation\screens\contacts\contact_form_screen.dart:61:26 - undefined_class
+  error - The method 'Contact' isn't defined for the type '_ContactFormScreenState' - lib\presentation\screens\contacts\contact_form_screen.dart:79:23 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\contacts\contact_form_screen.dart:160:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\contacts\contact_form_screen.dart:179:55 - deprecated_member_use
+  error - Target of URI doesn't exist: 'package:guia_start/models/fair_model.dart' - lib\presentation\screens\editions\edition_form_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/auth_service.dart' - lib\presentation\screens\editions\edition_form_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/edition_service.dart' - lib\presentation\screens\editions\edition_form_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/utils/async_processor.dart' - lib\presentation\screens\editions\edition_form_screen.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'Fair' - lib\presentation\screens\editions\edition_form_screen.dart:8:9 - undefined_class
+  error - Classes can only mix in mixins and classes - lib\presentation\screens\editions\edition_form_screen.dart:17:10 - mixin_of_non_class
+  error - Undefined class 'EditionService' - lib\presentation\screens\editions\edition_form_screen.dart:19:9 - undefined_class
+  error - The method 'EditionService' isn't defined for the type '_EditionFormScreenState' - lib\presentation\screens\editions\edition_form_screen.dart:19:42 - undefined_method
+  error - Undefined class 'AuthService' - lib\presentation\screens\editions\edition_form_screen.dart:20:9 - undefined_class
+  error - The method 'AuthService' isn't defined for the type '_EditionFormScreenState' - lib\presentation\screens\editions\edition_form_screen.dart:20:36 - undefined_method
+  error - The method 'CreateEditionRequest' isn't defined for the type '_EditionFormScreenState' - lib\presentation\screens\editions\edition_form_screen.dart:75:21 - undefined_method
+  error - The method 'executeOperation' isn't defined for the type '_EditionFormScreenState' - lib\presentation\screens\editions\edition_form_screen.dart:85:11 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_form_screen.dart:168:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_form_screen.dart:181:47 - deprecated_member_use
+  error - Undefined name 'isProcessing' - lib\presentation\screens\editions\edition_form_screen.dart:224:28 - undefined_identifier
+  error - Undefined name 'isProcessing' - lib\presentation\screens\editions\edition_form_screen.dart:231:24 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:guia_start/models/fair_model.dart' - lib\presentation\screens\editions\edition_list_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/models/edition_model.dart' - lib\presentation\screens\editions\edition_list_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/repositories/edition_repository.dart' - lib\presentation\screens\editions\edition_list_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/editions/edition_form_screen.dart' - lib\presentation\screens\editions\edition_list_screen.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/participations/participation_form_screen.dart' - lib\presentation\screens\editions\edition_list_screen.dart:6:8 - uri_does_not_exist
+  error - Undefined class 'Fair' - lib\presentation\screens\editions\edition_list_screen.dart:9:9 - undefined_class
+  error - Undefined class 'EditionRepository' - lib\presentation\screens\editions\edition_list_screen.dart:18:9 - undefined_class
+  error - The method 'EditionRepository' isn't defined for the type '_EditionListScreenState' - lib\presentation\screens\editions\edition_list_screen.dart:18:42 - undefined_method
+  error - The name 'Edition' isn't a type, so it can't be used as a type argument - lib\presentation\screens\editions\edition_list_screen.dart:36:32 - non_type_as_type_argument
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:58:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:65:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:73:51 - deprecated_member_use
+  error - The method 'ParticipationFormScreen' isn't defined for the type '_EditionListScreenState' - lib\presentation\screens\editions\edition_list_screen.dart:92:45 - undefined_method
+  error - The method 'EditionFormScreen' isn't defined for the type '_EditionListScreenState' - lib\presentation\screens\editions\edition_list_screen.dart:107:37 - undefined_method
+  error - Undefined class 'Edition' - lib\presentation\screens\editions\edition_list_screen.dart:134:9 - undefined_class
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:174:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:181:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:192:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:202:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\editions\edition_list_screen.dart:203:49 - deprecated_member_use
+  error - Target of URI doesn't exist: 'package:guia_start/models/third_party_model.dart' - lib\presentation\screens\fairs\fair_form_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/repositories/third_party_repository.dart' - lib\presentation\screens\fairs\fair_form_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/auth_service.dart' - lib\presentation\screens\fairs\fair_form_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/fair_service.dart' - lib\presentation\screens\fairs\fair_form_screen.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/utils/async_processor.dart' - lib\presentation\screens\fairs\fair_form_screen.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/widgets/searchable_dropdown.dart' - lib\presentation\screens\fairs\fair_form_screen.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/utils/validators.dart' - lib\presentation\screens\fairs\fair_form_screen.dart:8:8 - uri_does_not_exist
+  error - Classes can only mix in mixins and classes - lib\presentation\screens\fairs\fair_form_screen.dart:17:63 - mixin_of_non_class
+  error - Undefined class 'FairService' - lib\presentation\screens\fairs\fair_form_screen.dart:19:9 - undefined_class
+  error - The method 'FairService' isn't defined for the type '_FairFormScreenState' - lib\presentation\screens\fairs\fair_form_screen.dart:19:36 - undefined_method
+  error - Undefined class 'ThirdPartyRepository' - lib\presentation\screens\fairs\fair_form_screen.dart:20:9 - undefined_class
+  error - The method 'ThirdPartyRepository' isn't defined for the type '_FairFormScreenState' - lib\presentation\screens\fairs\fair_form_screen.dart:20:48 - undefined_method
+  error - Undefined class 'AuthService' - lib\presentation\screens\fairs\fair_form_screen.dart:21:9 - undefined_class
+  error - The method 'AuthService' isn't defined for the type '_FairFormScreenState' - lib\presentation\screens\fairs\fair_form_screen.dart:21:36 - undefined_method
+  error - Undefined class 'ThirdParty' - lib\presentation\screens\fairs\fair_form_screen.dart:26:3 - undefined_class
+  error - The method 'CreateFairRequest' isn't defined for the type '_FairFormScreenState' - lib\presentation\screens\fairs\fair_form_screen.dart:54:21 - undefined_method
+  error - The method 'executeOperation' isn't defined for the type '_FairFormScreenState' - lib\presentation\screens\fairs\fair_form_screen.dart:62:11 - undefined_method
+  error - Undefined name 'Validators' - lib\presentation\screens\fairs\fair_form_screen.dart:96:26 - undefined_identifier
+  error - Undefined name 'Validators' - lib\presentation\screens\fairs\fair_form_screen.dart:97:17 - undefined_identifier
+  error - Undefined name 'Validators' - lib\presentation\screens\fairs\fair_form_screen.dart:98:17 - undefined_identifier
+  error - Undefined name 'Validators' - lib\presentation\screens\fairs\fair_form_screen.dart:99:17 - undefined_identifier
+  error - Undefined name 'Validators' - lib\presentation\screens\fairs\fair_form_screen.dart:112:26 - undefined_identifier
+  error - Undefined name 'Validators' - lib\presentation\screens\fairs\fair_form_screen.dart:113:17 - undefined_identifier
+  error - Undefined name 'Validators' - lib\presentation\screens\fairs\fair_form_screen.dart:114:17 - undefined_identifier
+  error - The method 'SearchableDropdown' isn't defined for the type '_FairFormScreenState' - lib\presentation\screens\fairs\fair_form_screen.dart:127:13 - undefined_method
+  error - The name 'ThirdParty' isn't a type, so it can't be used as a type argument - lib\presentation\screens\fairs\fair_form_screen.dart:127:32 - non_type_as_type_argument
+  error - Undefined name 'ThirdPartyType' - lib\presentation\screens\fairs\fair_form_screen.dart:135:47 - undefined_identifier
+  error - The method 'ThirdParty' isn't defined for the type '_FairFormScreenState' - lib\presentation\screens\fairs\fair_form_screen.dart:147:35 - undefined_method
+  error - Undefined name 'ThirdPartyType' - lib\presentation\screens\fairs\fair_form_screen.dart:150:25 - undefined_identifier
+  error - Undefined name 'isProcessing' - lib\presentation\screens\fairs\fair_form_screen.dart:196:28 - undefined_identifier
+  error - Undefined name 'isProcessing' - lib\presentation\screens\fairs\fair_form_screen.dart:203:24 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:guia_start/services/participation_service.dart' - lib\presentation\screens\fairs\fair_list_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/auth_service.dart' - lib\presentation\screens\fairs\fair_list_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/participations/participation_detail_screen.dart' - lib\presentation\screens\fairs\fair_list_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/fairs/fair_search_screen.dart' - lib\presentation\screens\fairs\fair_list_screen.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/utils/result.dart' - lib\presentation\screens\fairs\fair_list_screen.dart:6:8 - uri_does_not_exist
+  error - Undefined class 'ParticipationService' - lib\presentation\screens\fairs\fair_list_screen.dart:16:9 - undefined_class
+  error - The method 'ParticipationService' isn't defined for the type '_FairListScreenState' - lib\presentation\screens\fairs\fair_list_screen.dart:16:54 - undefined_method
+  error - Undefined class 'AuthService' - lib\presentation\screens\fairs\fair_list_screen.dart:17:9 - undefined_class
+  error - The method 'AuthService' isn't defined for the type '_FairListScreenState' - lib\presentation\screens\fairs\fair_list_screen.dart:17:36 - undefined_method
+  error - The name 'FairSearchScreen' isn't a class - lib\presentation\screens\fairs\fair_list_screen.dart:36:61 - creation_with_non_type
+  error - The name 'Result' isn't a type, so it can't be used as a type argument - lib\presentation\screens\fairs\fair_list_screen.dart:44:27 - non_type_as_type_argument
+  error - The name 'ParticipationDetails' isn't a type, so it can't be used as a type argument - lib\presentation\screens\fairs\fair_list_screen.dart:44:39 - non_type_as_type_argument
+  error - Undefined class 'ParticipationDetails' - lib\presentation\screens\fairs\fair_list_screen.dart:80:29 - undefined_class
+  error - The method 'ParticipationDetailScreen' isn't defined for the type '_FairListScreenState' - lib\presentation\screens\fairs\fair_list_screen.dart:130:37 - undefined_method
+  error - The name 'FairSearchScreen' isn't a class - lib\presentation\screens\fairs\fair_list_screen.dart:163:61 - creation_with_non_type
+  error - Target of URI doesn't exist: 'package:guia_start/models/fair_model.dart' - lib\presentation\screens\fairs\fair_search_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/fair_service.dart' - lib\presentation\screens\fairs\fair_search_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/fairs/fair_form_screen.dart' - lib\presentation\screens\fairs\fair_search_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/editions/edition_list_screen.dart' - lib\presentation\screens\fairs\fair_search_screen.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'FairService' - lib\presentation\screens\fairs\fair_search_screen.dart:15:9 - undefined_class
+  error - The method 'FairService' isn't defined for the type '_FairSearchScreenState' - lib\presentation\screens\fairs\fair_search_screen.dart:15:36 - undefined_method
+  error - The name 'FairWithOrganizer' isn't a type, so it can't be used as a type argument - lib\presentation\screens\fairs\fair_search_screen.dart:18:8 - non_type_as_type_argument
+  error - Undefined class 'Fair' - lib\presentation\screens\fairs\fair_search_screen.dart:53:20 - undefined_class
+  error - The method 'EditionListScreen' isn't defined for the type '_FairSearchScreenState' - lib\presentation\screens\fairs\fair_search_screen.dart:57:31 - undefined_method
+  error - The name 'FairFormScreen' isn't a class - lib\presentation\screens\fairs\fair_search_screen.dart:65:53 - creation_with_non_type
+  error - Target of URI doesn't exist: 'package:guia_start/screens/fairs/fair_list_screen.dart' - lib\presentation\screens\home\home_screen.dart:2:8 - uri_does_not_exist
+  error - The name 'FairListScreen' isn't a class - lib\presentation\screens\home\home_screen.dart:9:18 - creation_with_non_type
+  error - Target of URI doesn't exist: 'package:guia_start/models/participation_model.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/models/sale_model.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/models/contact_model.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/models/visitor_model.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/providers/app_state_provider.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/participation_service.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/sales/sale_form_screen.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:8:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/contacts/contact_form_screen.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:9:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/screens/visitors/visitor_form_screen.dart' - lib\presentation\screens\participations\participation_detail_screen.dart:10:8 - uri_does_not_exist
+  error - Undefined class 'Participation' - lib\presentation\screens\participations\participation_detail_screen.dart:14:9 - undefined_class
+  error - Undefined class 'ParticipationService' - lib\presentation\screens\participations\participation_detail_screen.dart:25:9 - undefined_class
+  error - The method 'ParticipationService' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:25:54 - undefined_method
+  error - The name 'AppStateProvider' isn't a type, so it can't be used as a type argument - lib\presentation\screens\participations\participation_detail_screen.dart:58:20 - non_type_as_type_argument
+  error - The method '_SalesTab' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:146:17 - undefined_method
+  error - The method '_ContactsTab' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:150:17 - undefined_method
+  error - The method '_VisitorsTab' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:154:17 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:171:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:174:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:196:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:294:43 - deprecated_member_use
+  error - Classes can't be declared inside other classes - lib\presentation\screens\participations\participation_detail_screen.dart:305:1 - class_in_class
+  error - Expected a class member - lib\presentation\screens\participations\participation_detail_screen.dart:305:17 - expected_class_member
+   info - The variable name 'StatelessWidget' isn't a lowerCamelCase identifier - lib\presentation\screens\participations\participation_detail_screen.dart:305:25 - non_constant_identifier_names
+  error - Methods must have an explicit list of parameters - lib\presentation\screens\participations\participation_detail_screen.dart:305:25 - missing_method_parameters
+  error - The name '_SalesTab' isn't a class - lib\presentation\screens\participations\participation_detail_screen.dart:309:9 - creation_with_non_type
+   info - 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required - lib\presentation\screens\participations\participation_detail_screen.dart:309:20 - deprecated_member_use
+  error - Expected to find ',' - lib\presentation\screens\participations\participation_detail_screen.dart:309:29 - expected_token
+  error - The getter 'participationId' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:309:34 - undefined_getter
+   info - 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required - lib\presentation\screens\participations\participation_detail_screen.dart:309:51 - deprecated_member_use
+  error - Expected to find ',' - lib\presentation\screens\participations\participation_detail_screen.dart:309:60 - expected_token
+  error - The getter 'onSaleAdded' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:309:65 - undefined_getter
+warning - The declaration 'build' isn't referenced - lib\presentation\screens\participations\participation_detail_screen.dart:312:10 - unused_element
+  error - The method 'ParticipationService' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:314:34 - undefined_method
+  error - The name 'Sale' isn't a type, so it can't be used as a type argument - lib\presentation\screens\participations\participation_detail_screen.dart:317:32 - non_type_as_type_argument
+  error - The final variable 'participationId' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:318:50 - read_potentially_unassigned_final
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:336:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:343:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:372:51 - deprecated_member_use
+  error - The method 'SaleFormScreen' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:387:37 - undefined_method
+  error - The final variable 'participationId' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:388:34 - read_potentially_unassigned_final
+  error - The final variable 'onSaleAdded' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:392:11 - read_potentially_unassigned_final
+  error - Classes can't be declared inside other classes - lib\presentation\screens\participations\participation_detail_screen.dart:402:1 - class_in_class
+  error - Expected a class member - lib\presentation\screens\participations\participation_detail_screen.dart:402:20 - expected_class_member
+   info - The variable name 'StatelessWidget' isn't a lowerCamelCase identifier - lib\presentation\screens\participations\participation_detail_screen.dart:402:28 - non_constant_identifier_names
+  error - Methods must have an explicit list of parameters - lib\presentation\screens\participations\participation_detail_screen.dart:402:28 - missing_method_parameters
+  error - The name 'StatelessWidget' is already defined - lib\presentation\screens\participations\participation_detail_screen.dart:402:28 - duplicate_definition
+  error - The name '_ContactsTab' isn't a class - lib\presentation\screens\participations\participation_detail_screen.dart:406:9 - creation_with_non_type
+   info - 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required - lib\presentation\screens\participations\participation_detail_screen.dart:407:8 - deprecated_member_use
+  error - Expected to find ',' - lib\presentation\screens\participations\participation_detail_screen.dart:407:17 - expected_token
+  error - The getter 'participationId' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:407:22 - undefined_getter
+   info - 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required - lib\presentation\screens\participations\participation_detail_screen.dart:407:39 - deprecated_member_use
+  error - Expected to find ',' - lib\presentation\screens\participations\participation_detail_screen.dart:407:48 - expected_token
+  error - The getter 'onContactAdded' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:407:53 - undefined_getter
+warning - The declaration 'build' isn't referenced - lib\presentation\screens\participations\participation_detail_screen.dart:410:10 - unused_element
+  error - The method 'ParticipationService' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:412:34 - undefined_method
+  error - The name 'Contact' isn't a type, so it can't be used as a type argument - lib\presentation\screens\participations\participation_detail_screen.dart:415:32 - non_type_as_type_argument
+  error - The final variable 'participationId' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:416:53 - read_potentially_unassigned_final
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:432:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:439:51 - deprecated_member_use
+  error - The method 'ContactFormScreen' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:477:21 - undefined_method
+  error - The final variable 'participationId' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:477:56 - read_potentially_unassigned_final
+  error - The final variable 'onContactAdded' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:479:11 - read_potentially_unassigned_final
+  error - Classes can't be declared inside other classes - lib\presentation\screens\participations\participation_detail_screen.dart:489:1 - class_in_class
+  error - Expected a class member - lib\presentation\screens\participations\participation_detail_screen.dart:489:20 - expected_class_member
+   info - The variable name 'StatelessWidget' isn't a lowerCamelCase identifier - lib\presentation\screens\participations\participation_detail_screen.dart:489:28 - non_constant_identifier_names
+  error - Methods must have an explicit list of parameters - lib\presentation\screens\participations\participation_detail_screen.dart:489:28 - missing_method_parameters
+  error - The name 'StatelessWidget' is already defined - lib\presentation\screens\participations\participation_detail_screen.dart:489:28 - duplicate_definition
+  error - The name '_VisitorsTab' isn't a class - lib\presentation\screens\participations\participation_detail_screen.dart:493:9 - creation_with_non_type
+   info - 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required - lib\presentation\screens\participations\participation_detail_screen.dart:494:8 - deprecated_member_use
+  error - Expected to find ',' - lib\presentation\screens\participations\participation_detail_screen.dart:494:17 - expected_token
+  error - The getter 'participationId' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:494:22 - undefined_getter
+   info - 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required - lib\presentation\screens\participations\participation_detail_screen.dart:494:39 - deprecated_member_use
+  error - Expected to find ',' - lib\presentation\screens\participations\participation_detail_screen.dart:494:48 - expected_token
+  error - The getter 'onVisitorAdded' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:494:53 - undefined_getter
+warning - The declaration 'build' isn't referenced - lib\presentation\screens\participations\participation_detail_screen.dart:497:10 - unused_element
+  error - The method 'ParticipationService' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:499:34 - undefined_method
+  error - The name 'Visitor' isn't a type, so it can't be used as a type argument - lib\presentation\screens\participations\participation_detail_screen.dart:502:32 - non_type_as_type_argument
+  error - The final variable 'participationId' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:503:53 - read_potentially_unassigned_final
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:519:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:526:51 - deprecated_member_use
+  error - The returned type 'double' isn't returnable from a 'int' function, as required by the closure's context - lib\presentation\screens\participations\participation_detail_screen.dart:535:55 - return_of_invalid_type_from_closure
+  error - The property 'count' can't be unconditionally accessed because the receiver can be 'null' - lib\presentation\screens\participations\participation_detail_screen.dart:535:69 - unchecked_use_of_nullable_value
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_detail_screen.dart:543:46 - deprecated_member_use
+  error - The method 'VisitorFormScreen' isn't defined for the type '_ParticipationDetailScreenState' - lib\presentation\screens\participations\participation_detail_screen.dart:601:37 - undefined_method
+  error - The final variable 'participationId' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:602:34 - read_potentially_unassigned_final
+  error - The final variable 'onVisitorAdded' can't be read because it's potentially unassigned at this point - lib\presentation\screens\participations\participation_detail_screen.dart:606:11 - read_potentially_unassigned_final
+  error - Expected to find '}' - lib\presentation\screens\participations\participation_detail_screen.dart:613:1 - expected_token
+  error - Target of URI doesn't exist: 'package:guia_start/models/fair_model.dart' - lib\presentation\screens\participations\participation_form_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/models/edition_model.dart' - lib\presentation\screens\participations\participation_form_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/participation_service.dart' - lib\presentation\screens\participations\participation_form_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/services/auth_service.dart' - lib\presentation\screens\participations\participation_form_screen.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/utils/async_processor.dart' - lib\presentation\screens\participations\participation_form_screen.dart:6:8 - uri_does_not_exist
+  error - Undefined class 'Fair' - lib\presentation\screens\participations\participation_form_screen.dart:9:9 - undefined_class
+  error - Undefined class 'Edition' - lib\presentation\screens\participations\participation_form_screen.dart:10:9 - undefined_class
+  error - Classes can only mix in mixins and classes - lib\presentation\screens\participations\participation_form_screen.dart:24:10 - mixin_of_non_class
+  error - Undefined class 'ParticipationService' - lib\presentation\screens\participations\participation_form_screen.dart:26:9 - undefined_class
+  error - The method 'ParticipationService' isn't defined for the type '_ParticipationFormScreenState' - lib\presentation\screens\participations\participation_form_screen.dart:26:54 - undefined_method
+  error - Undefined class 'AuthService' - lib\presentation\screens\participations\participation_form_screen.dart:27:9 - undefined_class
+  error - The method 'AuthService' isn't defined for the type '_ParticipationFormScreenState' - lib\presentation\screens\participations\participation_form_screen.dart:27:36 - undefined_method
+  error - The method 'CreateParticipationRequest' isn't defined for the type '_ParticipationFormScreenState' - lib\presentation\screens\participations\participation_form_screen.dart:49:21 - undefined_method
+  error - The method 'executeOperation' isn't defined for the type '_ParticipationFormScreenState' - lib\presentation\screens\participations\participation_form_screen.dart:58:11 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_form_screen.dart:89:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_form_screen.dart:108:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_form_screen.dart:116:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\participations\participation_form_screen.dart:124:55 - deprecated_member_use
+  error - Undefined name 'isProcessing' - lib\presentation\screens\participations\participation_form_screen.dart:175:28 - undefined_identifier
+  error - Undefined name 'isProcessing' - lib\presentation\screens\participations\participation_form_screen.dart:182:24 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:guia_start/models/sale_model.dart' - lib\presentation\screens\sales\sale_form_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/repositories/participation_repository.dart' - lib\presentation\screens\sales\sale_form_screen.dart:3:8 - uri_does_not_exist
+  error - Undefined class 'ParticipationRepository' - lib\presentation\screens\sales\sale_form_screen.dart:15:9 - undefined_class
+  error - The method 'ParticipationRepository' isn't defined for the type '_SaleFormScreenState' - lib\presentation\screens\sales\sale_form_screen.dart:15:54 - undefined_method
+  error - The method 'Sale' isn't defined for the type '_SaleFormScreenState' - lib\presentation\screens\sales\sale_form_screen.dart:38:20 - undefined_method
+  error - Target of URI doesn't exist: 'package:guia_start/models/visitor_model.dart' - lib\presentation\screens\visitors\visitor_form_screen.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:guia_start/repositories/participation_repository.dart' - lib\presentation\screens\visitors\visitor_form_screen.dart:3:8 - uri_does_not_exist
+  error - Undefined class 'ParticipationRepository' - lib\presentation\screens\visitors\visitor_form_screen.dart:16:9 - undefined_class
+  error - The method 'ParticipationRepository' isn't defined for the type '_VisitorFormScreenState' - lib\presentation\screens\visitors\visitor_form_screen.dart:16:54 - undefined_method
+  error - The method 'Visitor' isn't defined for the type '_VisitorFormScreenState' - lib\presentation\screens\visitors\visitor_form_screen.dart:35:23 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\searchable_dropdown.dart:223:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\searchable_dropdown.dart:228:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\searchable_dropdown.dart:266:49 - deprecated_member_use
+

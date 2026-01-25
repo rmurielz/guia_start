@@ -21,6 +21,6 @@ class NotFoundFailure extends Failure {
   const NotFoundFailure(super.message);
 }
 
-class UnathorizedFailure extends Failure {
-  const UnathorizedFailure(super.message);
+class UnauthorizedFailure extends Failure {
+  const UnauthorizedFailure(super.message);
 }

@@ -8,7 +8,7 @@ class UserProfile extends Entity {
   final String? businessName;
   final String? photoUrl;
   final DateTime createdAt;
-  final DateTime lastLoginAt;
+  final DateTime? lastLoginAt;
 
   UserProfile({
     required this.id,

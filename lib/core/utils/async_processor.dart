@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/utils/result.dart';
+import 'package:guia_start/core/utils/result.dart';
 
 mixin AsyncProcessor<T extends StatefulWidget> on State<T> {
   bool isProcessing = false;
