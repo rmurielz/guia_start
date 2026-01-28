@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/contact_model.dart';
-import 'package:guia_start/models/third_party_model.dart';
-import 'package:guia_start/repositories/participation_repository.dart';
-import 'package:guia_start/repositories/third_party_repository.dart';
+import 'package:guia_start/domain/entities/third_party.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/domain/usecases/participation/add_contact_usecase.dart';
+import 'package:guia_start/domain/usecases/third_party/search_third_party_usecase.dart';
 
 class ContactFormScreen extends StatefulWidget {
   final String participationId;
@@ -15,8 +15,6 @@ class ContactFormScreen extends StatefulWidget {
 
 class _ContactFormScreenState extends State<ContactFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final ParticipationRepository _participationRepo = ParticipationRepository();
-  final ThirdPartyRepository _thirdPartyRepo = ThirdPartyRepository();
 
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
@@ -43,16 +41,28 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     setState(() => _isSearching = true);
 
     try {
-      final results = await _thirdPartyRepo.searchThirdPartiesByName(query);
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
+      final result = await di.searchThirdPartyUseCase(
+        SearchThirdPartyParams.byName(query),
+      );
+
+      if (result.isSuccess) {
+        setState(() {
+          _searchResults = result.data!;
+          _isSearching = false;
+        });
+      } else {
+        setState(() => _isSearching = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${result.error}')),
+          );
+        }
+      }
     } catch (e) {
       setState(() => _isSearching = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error searching third parties: $e')),
+          SnackBar(content: Text('Error searching third parties')),
         );
       }
     }
@@ -76,33 +86,32 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final contact = Contact(
-        id: '',
-        participationId: '',
-        thirdPartyId: _selectedThirdParty!.id,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-        createdAt: DateTime.now(),
+      final result = await di.addContactUseCase(
+        AddContactParams(
+          participationId: widget.participationId,
+          thirdPartyId: _selectedThirdParty!.id,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
       );
+      if (!mounted) return;
 
-      final result = await _participationRepo.addContact(
-        widget.participationId,
-        contact,
-      );
-
-      if (result.isSuccess && mounted) {
+      if (result.isSuccess) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Contact saved successfully')),
+          const SnackBar(content: Text('Contact saved succesfully')),
         );
       }
     } catch (e) {
-      setState(() => _isSaving = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error saving contact: $e')),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
       }
     }
   }
@@ -156,8 +165,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
               Container(
                 margin: const EdgeInsets.only(top: 8),
                 decoration: BoxDecoration(
-                  border:
-                      Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
+                  border: Border.all(color: colorScheme.tertiary),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 constraints: const BoxConstraints(maxHeight: 200),
@@ -176,7 +184,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                         thirdParty.type.toString().split('.').last,
                         style: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.tertiary.withOpacity(0.6),
+                          color: colorScheme.tertiary,
                         ),
                       ),
                       onTap: () => _selectThirdParty(thirdParty),

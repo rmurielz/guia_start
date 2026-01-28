@@ -20,14 +20,14 @@ class Contact extends Entity {
   Contact copyWith({
     String? id,
     String? participationId,
-    String? thirdPArtyId,
+    String? thirdPartyId,
     String? notes,
     DateTime? createdAt,
   }) {
     return Contact(
       id: id ?? this.id,
       participationId: participationId ?? this.participationId,
-      thirdPartyId: thirdPArtyId ?? this.thirdPartyId,
+      thirdPartyId: thirdPartyId ?? this.thirdPartyId,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
     );

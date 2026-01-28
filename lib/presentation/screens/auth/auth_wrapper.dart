@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
-import '../home/home_screen.dart';
+import 'package:guia_start/presentation/screens/home/home_screen.dart'; // ← Esta línea
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -13,7 +13,6 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Mientras verifica el estado de autenticación
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             body: Center(
@@ -24,12 +23,10 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        // Si hay usuario autenticado, mostrar la pantalla principal
         if (snapshot.hasData) {
           return const HomeScreen();
         }
 
-        // Si no hay usuario autenticado, mostrar la pantalla de inicio de sesión
         return const LoginScreen();
       },
     );

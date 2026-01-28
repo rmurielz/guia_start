@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/domain/usecases/auth/sign_up_usecase.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -39,27 +40,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _isLoading = true);
 
-    try {
-      final authService = AuthService();
-      await authService.signUp(
+    final result = await di.signUpUseCase(
+      SignUpParams(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         name: _nameController.text.trim(),
         businessName: _businessNameController.text.trim().isEmpty
             ? null
             : _businessNameController.text.trim(),
-      );
-      if (!mounted) return;
+      ),
+    );
 
+    if (!mounted) return;
+
+    setState(() => _isLoading = false);
+
+    if (result.isSuccess) {
       _showSnackBar('Registro exitoso');
-      Navigator.pop(context); // Regresa al login
-    } catch (e) {
-      if (!mounted) return;
-      _showSnackBar('Error al registrar: $e', isError: true);
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      Navigator.pop(context);
+    } else {
+      _showSnackBar(result.error ?? 'Error al registrar', isError: true);
     }
   }
 

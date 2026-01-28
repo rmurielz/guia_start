@@ -3,10 +3,10 @@ import 'package:guia_start/core/utils/result.dart';
 import 'package:guia_start/domain/entities/contact.dart';
 import 'package:guia_start/domain/repositories/participation_repository.dart';
 
-class AddContactUsecase implements UseCase<Contact, AddContactParams> {
+class AddContactUseCase implements UseCase<Contact, AddContactParams> {
   final ParticipationRepository _repository;
 
-  AddContactUsecase(this._repository);
+  AddContactUseCase(this._repository);
 
   @override
   Future<Result<Contact>> call(AddContactParams params) async {

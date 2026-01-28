@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/services/participation_service.dart';
-import 'package:guia_start/services/auth_service.dart';
-import 'package:guia_start/screens/participations/participation_detail_screen.dart';
-import 'package:guia_start/screens/fairs/fair_search_screen.dart';
-import 'package:guia_start/utils/result.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/presentation/screens/participations/participation_detail_screen.dart';
+import 'package:guia_start/presentation/screens/fairs/fair_search_screen.dart';
+import 'package:guia_start/domain/usecases/participation/get_user_participations_usecase.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FairListScreen extends StatefulWidget {
   const FairListScreen({super.key});
@@ -13,13 +13,10 @@ class FairListScreen extends StatefulWidget {
 }
 
 class _FairListScreenState extends State<FairListScreen> {
-  final ParticipationService _participationService = ParticipationService();
-  final AuthService _authService = AuthService();
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final userId = _authService.getCurrentUser()?.uid;
+    final currentUser = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,7 +27,7 @@ class _FairListScreenState extends State<FairListScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search, color: Colors.black),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const FairSearchScreen()),
@@ -38,12 +35,11 @@ class _FairListScreenState extends State<FairListScreen> {
           ),
         ],
       ),
-      body: userId == null
+      body: currentUser == null
           ? const Center(
               child: Text('Inicia sesión para ver tus participaciones.'))
-          : FutureBuilder<Result<List<ParticipationDetails>>>(
-              future:
-                  _participationService.getUserParticipationsDetailed(userId),
+          : FutureBuilder<List<ParticipationDetails>>(
+              future: _loadParticipations(currentUser.uid),
               builder: (context, snapshot) {
                 // Loading
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -51,11 +47,18 @@ class _FairListScreenState extends State<FairListScreen> {
                 }
 
                 // Error
-                if (snapshot.hasData && snapshot.data!.isSuccess) {
-                  final listDetails = snapshot.data!.data!;
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                }
+
+                // Success
+                if (snapshot.hasData) {
+                  final listDetails = snapshot.data!;
 
                   if (listDetails.isEmpty) {
-                    return _buildEmpyState(context);
+                    return _buildEmptyState(context);
                   }
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
@@ -67,13 +70,22 @@ class _FairListScreenState extends State<FairListScreen> {
                   );
                 }
 
-                return Center(
-                  child: Text(
-                      'Error: ${snapshot.data?.error ?? "Error desconocido"}'),
-                );
+                return const Center(child: Text('No data'));
               },
             ),
     );
+  }
+
+  Future<List<ParticipationDetails>> _loadParticipations(String userId) async {
+    final result = await di.getUserParticipationsUseCase(
+      GetUserParticipationsParams(userId: userId),
+    );
+
+    if (result.isSuccess) {
+      return result.data!;
+    } else {
+      throw Exception(result.error ?? 'Error loading participations');
+    }
   }
 
   Widget _buildParticipationCard(
@@ -100,29 +112,43 @@ class _FairListScreenState extends State<FairListScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                details.edition.name,
-                style: TextStyle(
-                    color: colorScheme.primary, fontWeight: FontWeight.w500),
+              Row(
+                children: [
+                  const Icon(Icons.event, size: 16, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text(details.edition.name),
+                ],
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(Icons.location_on_outlined, size: 14),
+                  const Icon(Icons.attach_money, size: 16, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Text(details.edition.location,
-                      style: const TextStyle(fontSize: 13)),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.attach_money, size: 14),
-                  const SizedBox(width: 4),
-                  Text('Costo: $details.participation.participationCost}'),
+                  Text(
+                      '\$${details.participation.participationCost.toStringAsFixed(2)}'),
                 ],
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(details.edition.status, colorScheme),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  details.edition.status.displayName,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                ),
               ),
             ],
           ),
         ),
-
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        trailing:
+            const Icon(Icons.chevron_right, color: Colors.black, size: 28),
         onTap: () {
           Navigator.push(
             context,
@@ -137,33 +163,47 @@ class _FairListScreenState extends State<FairListScreen> {
     );
   }
 
-  Widget _buildEmpyState(BuildContext context) {
-    // Sin Datos
+  Color _getStatusColor(dynamic status, ColorScheme colorScheme) {
+    final statusName = status.toString().split('.').last;
+    switch (statusName) {
+      case 'planning':
+        return Colors.blue.shade100;
+      case 'active':
+        return Colors.green.shade100;
+      case 'finished':
+        return Colors.grey.shade300;
+      case 'cancelled':
+        return Colors.red.shade100;
+      default:
+        return colorScheme.surface;
+    }
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.event_available,
-            size: 64,
-            color: Colors.grey[400],
+            Icons.event_busy,
+            size: 80,
+            color: Colors.grey.shade400,
           ),
           const SizedBox(height: 16),
           const Text(
-            'Aún No tienes ferias registradas',
+            'No tienes participaciones registradas',
             style: TextStyle(
               fontSize: 18,
-              color: Colors.grey,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const FairSearchScreen()),
+          const SizedBox(height: 8),
+          Text(
+            'Busca ferias y participa para verlas aquí',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
             ),
-            icon: const Icon(Icons.search),
-            label: const Text('Buscar Ferias'),
           ),
         ],
       ),

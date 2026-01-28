@@ -5,12 +5,12 @@ import 'package:guia_start/domain/entities/third_party.dart';
 import 'package:guia_start/domain/repositories/fair_repository.dart';
 import 'package:guia_start/domain/repositories/third_party_repository.dart';
 
-class GetFairWithOrganizerUsecase
+class GetFairWithOrganizerUseCase
     implements UseCase<FairWithOrganizer, String> {
   final FairRepository _fairRepository;
   final ThirdPartyRepository _thirdPartyRepository;
 
-  GetFairWithOrganizerUsecase({
+  GetFairWithOrganizerUseCase({
     required FairRepository fairRepository,
     required ThirdPartyRepository thirdPartyRepository,
   })  : _fairRepository = fairRepository,

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/models/edition_model.dart';
-import 'package:guia_start/repositories/edition_repository.dart';
-import 'package:guia_start/screens/editions/edition_form_screen.dart';
-import 'package:guia_start/screens/participations/participation_form_screen.dart';
+import 'package:guia_start/domain/entities/fair.dart';
+import 'package:guia_start/domain/entities/edition.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/domain/usecases/edition/get_editions_by_fair_usecase.dart';
+import 'package:guia_start/presentation/screens/editions/edition_form_screen.dart';
+import 'package:guia_start/presentation/screens/participations/participation_form_screen.dart';
 
 class EditionListScreen extends StatefulWidget {
   final Fair fair;
-
   const EditionListScreen({super.key, required this.fair});
 
   @override
@@ -15,11 +15,20 @@ class EditionListScreen extends StatefulWidget {
 }
 
 class _EditionListScreenState extends State<EditionListScreen> {
-  final EditionRepository _editionRepo = EditionRepository();
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    Future<List<Edition>> loadEditions() async {
+      final result = await di.getEditionsByFairUseCase(
+        GetEditionsByFairParams(fairId: widget.fair.id),
+      );
+      if (result.isSuccess) {
+        return result.data!;
+      } else {
+        throw Exception(result.error ?? 'Error loading editions');
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -33,8 +42,8 @@ class _EditionListScreenState extends State<EditionListScreen> {
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: StreamBuilder<List<Edition>>(
-        stream: _editionRepo.streamEditionsByFairId(widget.fair.id),
+      body: FutureBuilder<List<Edition>>(
+        future: loadEditions(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -55,14 +64,14 @@ class _EditionListScreenState extends State<EditionListScreen> {
                   Icon(
                     Icons.event_note,
                     size: 64,
-                    color: colorScheme.tertiary.withOpacity(0.3),
+                    color: colorScheme.tertiary,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No hay ediciones registradas',
                     style: TextStyle(
                       fontSize: 18,
-                      color: colorScheme.tertiary.withOpacity(0.6),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -70,7 +79,7 @@ class _EditionListScreenState extends State<EditionListScreen> {
                     'Presiona + para crear una edición',
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.tertiary.withOpacity(0.5),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                 ],
@@ -171,14 +180,14 @@ class _EditionCard extends StatelessWidget {
                   Icon(
                     Icons.location_on,
                     size: 16,
-                    color: colorScheme.tertiary.withOpacity(0.7),
+                    color: colorScheme.tertiary,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     edition.location,
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.tertiary.withOpacity(0.7),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                 ],
@@ -189,7 +198,7 @@ class _EditionCard extends StatelessWidget {
                   Icon(
                     Icons.calendar_today,
                     size: 16,
-                    color: colorScheme.tertiary.withOpacity(0.7),
+                    color: colorScheme.tertiary,
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -198,9 +207,8 @@ class _EditionCard extends StatelessWidget {
                       horizontal: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: edition.isActive
-                          ? Colors.green.withOpacity(0.2)
-                          : colorScheme.primary.withOpacity(0.2),
+                      color:
+                          edition.isActive ? Colors.green : colorScheme.primary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(

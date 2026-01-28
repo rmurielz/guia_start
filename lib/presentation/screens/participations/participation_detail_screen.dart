@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/participation_model.dart';
-import 'package:guia_start/models/sale_model.dart';
-import 'package:guia_start/models/contact_model.dart';
-import 'package:guia_start/models/visitor_model.dart';
-import 'package:guia_start/providers/app_state_provider.dart';
-import 'package:guia_start/services/participation_service.dart';
-import 'package:guia_start/screens/sales/sale_form_screen.dart';
-import 'package:guia_start/screens/contacts/contact_form_screen.dart';
-import 'package:guia_start/screens/visitors/visitor_form_screen.dart';
+import 'package:guia_start/domain/entities/participation.dart';
+import 'package:guia_start/domain/entities/sale.dart';
+import 'package:guia_start/domain/entities/contact.dart';
+import 'package:guia_start/domain/entities/visitor.dart';
+import 'package:guia_start/domain/usecases/participation/get_participations_stats_usecase.dart';
+import 'package:guia_start/presentation/providers/app_state_provider.dart';
+import 'package:guia_start/presentation/screens/sales/sale_form_screen.dart';
+import 'package:guia_start/presentation/screens/contacts/contact_form_screen.dart';
+import 'package:guia_start/presentation/screens/visitors/visitor_form_screen.dart';
+import 'package:guia_start/core/di/injection_container.dart';
 import 'package:provider/provider.dart';
+import 'package:guia_start/domain/usecases/edition/get_editions_by_fair_usecase.dart';
 
 class ParticipationDetailScreen extends StatefulWidget {
   final Participation participation;
@@ -22,8 +24,6 @@ class ParticipationDetailScreen extends StatefulWidget {
 
 class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
     with SingleTickerProviderStateMixin {
-  final ParticipationService _participationService = ParticipationService();
-
   late TabController _tabController;
   bool _isLoadingStats = true;
   bool _isLoadingDetails = true;
@@ -50,48 +50,73 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
   }
 
   Future<void> _loadDetails() async {
-    final detailResults = await _participationService
-        .getParticipationsDetails(widget.participation.id);
+    try {
+      // Obtener fair
+      final fairResult = await di.getFairUseCase(widget.participation.fairId);
+      if (fairResult.isError) {
+        throw Exception(fairResult.error);
+      }
 
-    if (detailResults.isSuccess && mounted) {
-      final details = detailResults.data!;
-      context.read<AppStateProvider>().setActiveParticipation(
-            participation: details.participation,
-            fair: details.fair,
-            edition: details.edition,
-          );
-      setState(() {
-        _isLoadingDetails = false;
-        _fairName = details.fair.name;
-        _editionName = details.edition.name;
-      });
-    } else if (detailResults.isError && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(detailResults.error ?? 'Error al cargar los detalles')),
+      // Obtener editions de la fair
+      final editionsResult = await di.getEditionsByFairUseCase(
+        GetEditionsByFairParams(fairId: widget.participation.fairId),
       );
+      if (editionsResult.isError) {
+        throw Exception(editionsResult.error);
+      }
+
+      // Buscar la edition específica
+      final edition = editionsResult.data!.firstWhere(
+        (e) => e.id == widget.participation.editionId,
+        orElse: () => throw Exception('Edition not found'),
+      );
+
+      if (mounted) {
+        final fair = fairResult.data!;
+
+        context.read<AppStateProvider>().setActiveParticipation(
+              participation: widget.participation,
+              fair: fair,
+              edition: edition,
+            );
+        setState(() {
+          _isLoadingDetails = false;
+          _fairName = fair.name;
+          _editionName = edition.name;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar los detalles: $e')),
+        );
+        setState(() => _isLoadingDetails = false);
+      }
     }
   }
 
   Future<void> _loadStats() async {
-    final salesResult =
-        await _participationService.getTotalSales(widget.participation.id);
-    final visitorsResult =
-        await _participationService.getTotalVisitors(widget.participation.id);
-    final contactsResult =
-        await _participationService.getTotalContacts(widget.participation.id);
-    final roiResult =
-        await _participationService.calculateRoi(widget.participation.id);
+    try {
+      final statsResult = await di.getParticipationsStatsUseCase(
+        GetStatsParams(widget.participation.id),
+      );
 
-    if (mounted) {
-      setState(() {
-        _totalSales = salesResult.isSuccess ? salesResult.data! : 0.0;
-        _totalVisitors = visitorsResult.isSuccess ? visitorsResult.data! : 0;
-        _totalContacts = contactsResult.isSuccess ? contactsResult.data! : 0;
-        _roi = roiResult.isSuccess ? roiResult.data! : 0.0;
-        _isLoadingStats = false;
-      });
+      if (statsResult.isSuccess && mounted) {
+        final stats = statsResult.data!;
+        setState(() {
+          _totalSales = stats.totalSales;
+          _totalVisitors = stats.visitorsCount;
+          _totalContacts = stats.contactsCount;
+          _roi = stats.roi;
+          _isLoadingStats = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStats = false;
+        });
+      }
     }
   }
 
@@ -166,14 +191,12 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
   Widget _buildHeader(ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withOpacity(0.1),
-        border: Border(
-          bottom: BorderSide(
-            color: colorScheme.tertiary.withOpacity(0.2),
-            width: 2,
-          ),
+        color: colorScheme.primary,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
         ),
       ),
       child: Column(
@@ -181,59 +204,36 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
         children: [
           Text(
             _fairName,
-            style: TextStyle(
-              fontSize: 20,
+            style: const TextStyle(
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: colorScheme.tertiary,
+              color: Colors.black,
             ),
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
             _editionName,
             style: TextStyle(
               fontSize: 16,
-              color: colorScheme.tertiary.withOpacity(0.7),
+              color: Colors.black,
             ),
           ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 16,
-            runSpacing: 8,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              if (widget.participation.boothNumber != null)
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      WidgetSpan(
-                          child: Icon(Icons.store,
-                              size: 16, color: colorScheme.tertiary)),
-                      TextSpan(
-                        text: 'Stand ${widget.participation.boothNumber}',
-                        style: TextStyle(
-                            color: colorScheme.tertiary, fontSize: 14),
-                      ),
-                    ],
+          if (widget.participation.boothNumber != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.store, size: 16, color: Colors.black),
+                const SizedBox(width: 4),
+                Text(
+                  'Stand: ${widget.participation.boothNumber}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
                   ),
                 ),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    WidgetSpan(
-                        child: Icon(Icons.attach_money,
-                            size: 16, color: colorScheme.tertiary)),
-                    TextSpan(
-                      text:
-                          ' Costo: ${widget.participation.participationCost.toStringAsFixed(0)}',
-                      style:
-                          TextStyle(color: colorScheme.tertiary, fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -247,58 +247,68 @@ class _ParticipationDetailScreenState extends State<ParticipationDetailScreen>
       );
     }
 
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(16),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        alignment: WrapAlignment.spaceEvenly,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatCard('Ventas', '\$${_totalSales.toStringAsFixed(0)}',
-              Icons.attach_money, colorScheme),
           _buildStatCard(
-              'Contactos', '$_totalContacts', Icons.people, colorScheme),
+            colorScheme,
+            'Ventas',
+            '\$${_totalSales.toStringAsFixed(2)}',
+            Icons.attach_money,
+          ),
           _buildStatCard(
-              'Visitantes', '$_totalVisitors', Icons.groups, colorScheme),
-          _buildStatCard('ROI', '${_roi.toStringAsFixed(2)}%',
-              Icons.trending_up, colorScheme),
+            colorScheme,
+            'Visitantes',
+            _totalVisitors.toString(),
+            Icons.people,
+          ),
+          _buildStatCard(
+            colorScheme,
+            'Contactos',
+            _totalContacts.toString(),
+            Icons.contacts,
+          ),
+          _buildStatCard(
+            colorScheme,
+            'ROI',
+            '${_roi.toStringAsFixed(1)}%',
+            Icons.trending_up,
+          ),
         ],
       ),
     );
   }
 
   Widget _buildStatCard(
+    ColorScheme colorScheme,
     String label,
     String value,
     IconData icon,
-    ColorScheme colorScheme,
   ) {
-    return SizedBox(
-      width: 150,
-      child: Column(
-        children: [
-          Icon(icon, size: 24, color: colorScheme.primary),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.tertiary,
-            ),
+    return Column(
+      children: [
+        Icon(icon, color: colorScheme.primary, size: 24),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: colorScheme.tertiary.withOpacity(0.7),
-            ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: colorScheme.tertiary,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-
+}
 
 // ========= TABS =========
 
@@ -311,15 +321,20 @@ class _SalesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final participationService = ParticipationService();
 
     return Scaffold(
-      body: StreamBuilder<List<Sale>>(
-        stream: participationService.streamSales(participationId),
+      body: FutureBuilder<List<Sale>>(
+        future: _loadSales(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(color: colorScheme.primary),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
             );
           }
 
@@ -333,14 +348,14 @@ class _SalesTab extends StatelessWidget {
                   Icon(
                     Icons.shopping_cart_outlined,
                     size: 64,
-                    color: colorScheme.tertiary.withOpacity(0.3),
+                    color: colorScheme.tertiary,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No hay ventas registradas',
                     style: TextStyle(
                       fontSize: 16,
-                      color: colorScheme.tertiary.withOpacity(0.6),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                 ],
@@ -362,14 +377,14 @@ class _SalesTab extends StatelessWidget {
                   ),
                   title: Text('\$${sale.amount.toStringAsFixed(2)}'),
                   subtitle: Text(
-                    '\$${sale.paymentMethod} • ${sale.products}',
+                    '${sale.paymentMethod} • ${sale.products}',
                     overflow: TextOverflow.ellipsis,
                   ),
                   trailing: Text(
                     '${sale.createdAt.day}/${sale.createdAt.month}',
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.tertiary.withOpacity(0.6),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                 ),
@@ -395,9 +410,16 @@ class _SalesTab extends StatelessWidget {
       ),
     );
   }
-}
 
-// ========= TAB CONTACTOS =========
+  Future<List<Sale>> _loadSales() async {
+    final result = await di.participationRepository.getSales(participationId);
+    if (result.isSuccess) {
+      return result.data!;
+    } else {
+      throw Exception(result.error ?? 'Error loading sales');
+    }
+  }
+}
 
 class _ContactsTab extends StatelessWidget {
   final String participationId;
@@ -408,19 +430,26 @@ class _ContactsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final participationService = ParticipationService();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      body: StreamBuilder<List<Contact>>(
-        stream: participationService.streamContacts(participationId),
+      body: FutureBuilder<List<Contact>>(
+        future: _loadContacts(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(color: colorScheme.primary),
             );
           }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+
           final contacts = snapshot.data ?? [];
+
           if (contacts.isEmpty) {
             return Center(
               child: Column(
@@ -429,39 +458,68 @@ class _ContactsTab extends StatelessWidget {
                   Icon(
                     Icons.contacts_outlined,
                     size: 64,
-                    color: colorScheme.tertiary.withOpacity(0.3),
+                    color: colorScheme.tertiary,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No hay contactos registrados',
                     style: TextStyle(
                       fontSize: 16,
-                      color: colorScheme.tertiary.withOpacity(0.6),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                 ],
               ),
             );
           }
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: contacts.length,
             itemBuilder: (context, index) {
               final contact = contacts[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: colorScheme.secondary,
-                    child: const Icon(Icons.person, color: Colors.black),
-                  ),
-                  title: Text('Contacto: ${contact.thirdPartyId}'),
-                  subtitle: contact.notes != null
-                      ? Text(
-                          contact.notes!,
-                        )
-                      : null,
-                ),
+              return FutureBuilder(
+                future: di.thirdPartyRepository.getById(contact.thirdPartyId),
+                builder: (context, thirdPartySnapshot) {
+                  if (thirdPartySnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Card(
+                      child: ListTile(
+                        leading: CircularProgressIndicator(),
+                        title: Text('Cargando...'),
+                      ),
+                    );
+                  }
+
+                  final thirdPartyName = thirdPartySnapshot.hasData &&
+                          thirdPartySnapshot.data!.isSuccess
+                      ? thirdPartySnapshot.data!.data!.name
+                      : 'Desconocido';
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: colorScheme.primary,
+                        child: const Icon(Icons.person, color: Colors.black),
+                      ),
+                      title: Text(thirdPartyName),
+                      subtitle: contact.notes != null
+                          ? Text(
+                              contact.notes!,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : null,
+                      trailing: Text(
+                        '${contact.createdAt.day}/${contact.createdAt.month}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.tertiary,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );
@@ -473,8 +531,10 @@ class _ContactsTab extends StatelessWidget {
           await Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    ContactFormScreen(participationId: participationId)),
+              builder: (context) => ContactFormScreen(
+                participationId: participationId,
+              ),
+            ),
           );
           onContactAdded();
         },
@@ -482,9 +542,17 @@ class _ContactsTab extends StatelessWidget {
       ),
     );
   }
-}
 
-// ========= TAB VISITANTES =========
+  Future<List<Contact>> _loadContacts() async {
+    final result =
+        await di.participationRepository.getContacts(participationId);
+    if (result.isSuccess) {
+      return result.data!;
+    } else {
+      throw Exception(result.error ?? 'Error loading contacts');
+    }
+  }
+}
 
 class _VisitorsTab extends StatelessWidget {
   final String participationId;
@@ -495,19 +563,26 @@ class _VisitorsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final participationService = ParticipationService();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      body: StreamBuilder<List<Visitor>>(
-        stream: participationService.streamVisitors(participationId),
+      body: FutureBuilder<List<Visitor>>(
+        future: _loadVisitors(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(color: colorScheme.primary),
             );
           }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+
           final visitors = snapshot.data ?? [];
+
           if (visitors.isEmpty) {
             return Center(
               child: Column(
@@ -516,14 +591,14 @@ class _VisitorsTab extends StatelessWidget {
                   Icon(
                     Icons.people_outline,
                     size: 64,
-                    color: colorScheme.tertiary.withOpacity(0.3),
+                    color: colorScheme.tertiary,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No hay visitantes registrados',
                     style: TextStyle(
                       fontSize: 16,
-                      color: colorScheme.tertiary.withOpacity(0.6),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                 ],
@@ -531,37 +606,32 @@ class _VisitorsTab extends StatelessWidget {
             );
           }
 
-          final totalVisitors =
-              visitors.fold<int>(0, (sum, visitor) => sum + visitor.count);
+          // Calcular total de visitantes
+          final totalCount = visitors.fold<int>(
+            0,
+            (sum, visitor) => sum + visitor.count,
+          );
 
           return Column(
             children: [
+              // Total header
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.people, color: colorScheme.tertiary),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Total: $totalVisitors visitantes',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.tertiary,
-                      ),
-                    ),
-                  ],
+                color: colorScheme.primary,
+                child: Text(
+                  'Total de visitantes: $totalCount',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
+              // Lista
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(16),
                   itemCount: visitors.length,
                   itemBuilder: (context, index) {
                     final visitor = visitors[index];
@@ -569,20 +639,23 @@ class _VisitorsTab extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: colorScheme.secondary,
-                          child: Text(
-                            '${visitor.count}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                          backgroundColor: colorScheme.primary,
+                          child: const Icon(Icons.people, color: Colors.black),
+                        ),
+                        title: Text('${visitor.count} visitantes'),
+                        subtitle: visitor.notes != null
+                            ? Text(
+                                visitor.notes!,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : null,
+                        trailing: Text(
+                          '${visitor.timestamp.day}/${visitor.timestamp.month}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.tertiary,
                           ),
                         ),
-                        title: Text(
-                          '${visitor.timestamp.day}/${visitor.timestamp.month}/${visitor.timestamp.year}',
-                        ),
-                        subtitle:
-                            visitor.notes != null ? Text(visitor.notes!) : null,
                       ),
                     );
                   },
@@ -608,5 +681,15 @@ class _VisitorsTab extends StatelessWidget {
         child: const Icon(Icons.add, color: Colors.black),
       ),
     );
+  }
+
+  Future<List<Visitor>> _loadVisitors() async {
+    final result =
+        await di.participationRepository.getVisitors(participationId);
+    if (result.isSuccess) {
+      return result.data!;
+    } else {
+      throw Exception(result.error ?? 'Error loading visitors');
+    }
   }
 }

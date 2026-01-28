@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/third_party_model.dart';
-import 'package:guia_start/repositories/third_party_repository.dart';
-import 'package:guia_start/services/auth_service.dart';
-import 'package:guia_start/services/fair_service.dart';
-import 'package:guia_start/utils/async_processor.dart';
-import 'package:guia_start/widgets/searchable_dropdown.dart';
-import 'package:guia_start/utils/validators.dart';
+import 'package:guia_start/domain/entities/third_party.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/core/utils/async_processor.dart';
+import 'package:guia_start/core/utils/validators.dart';
+import 'package:guia_start/domain/usecases/fair/create_fair_usecase.dart';
+import 'package:guia_start/presentation/widgets/searchable_dropdown.dart';
+import 'package:guia_start/domain/usecases/third_party/search_third_party_usecase.dart';
+import 'package:guia_start/domain/usecases/third_party/create_third_party_usecase.dart';
+import 'package:guia_start/domain/repositories/auth_repository.dart';
 
 class FairFormScreen extends StatefulWidget {
   const FairFormScreen({super.key});
@@ -16,9 +18,10 @@ class FairFormScreen extends StatefulWidget {
 
 class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
   final _formKey = GlobalKey<FormState>();
-  final FairService _fairService = FairService();
-  final ThirdPartyRepository _thirdPartyRepo = ThirdPartyRepository();
-  final AuthService _authService = AuthService();
+  late final CreateFairUseCase _createFairUseCase = di.createFairUseCase;
+  late final SearchThirdPartyUseCase _searchThirdPartyUseCase =
+      di.searchThirdPartyUseCase;
+  late final AuthRepository _authRepository = di.authRepository;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -43,7 +46,7 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
       return;
     }
 
-    final userId = _authService.getCurrentUser()?.uid;
+    final userId = _authRepository.getCurrentUserId();
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuario no autenticado')),
@@ -51,7 +54,7 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
       return;
     }
 
-    final request = CreateFairRequest(
+    final request = CreateFairParams(
       name: _nameController.text,
       description: _descriptionController.text,
       organizerId: _selectedOrganizer!.id,
@@ -60,7 +63,7 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
     );
 
     await executeOperation(
-      operation: _fairService.createFair(request),
+      operation: _createFairUseCase(request),
       successMessage: 'Feria creada exitosamente',
       onSuccess: () => Navigator.of(context).pop(),
     );
@@ -129,11 +132,15 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
               prefixIcon: Icons.business,
               selectedItem: _selectedOrganizer,
               onSearch: (query) async {
-                final results =
-                    await _thirdPartyRepo.searchThirdPartiesByName(query);
-                return results
-                    .where((tp) => tp.type == ThirdPartyType.organizer)
-                    .toList();
+                final result = await _searchThirdPartyUseCase(
+                  SearchThirdPartyParams.byName(query),
+                );
+                if (result.isSuccess) {
+                  return result.data!
+                      .where((tp) => tp.type == ThirdPartyType.organizer)
+                      .toList();
+                }
+                return [];
               },
               onSelected: (organizer) {
                 setState(() {
@@ -141,17 +148,16 @@ class _FairFormScreenState extends State<FairFormScreen> with AsyncProcessor {
                 });
               },
               onCreate: (name) async {
-                final userId = _authService.getCurrentUser()?.uid;
+                final userId = _authRepository.getCurrentUserId();
                 if (userId == null) throw Exception('Usuario no autenticado');
 
-                final organizer = ThirdParty(
-                  id: '',
-                  name: name,
-                  type: ThirdPartyType.organizer,
-                  createdBy: userId,
-                  createdAt: DateTime.now(),
+                final result = await di.createThirdPartyUseCase(
+                  CreateThirdPartyParams(
+                    name: name,
+                    type: ThirdPartyType.organizer,
+                    createdBy: userId,
+                  ),
                 );
-                final result = await _thirdPartyRepo.add(organizer);
 
                 if (result.isError) {
                   throw Exception(result.error);

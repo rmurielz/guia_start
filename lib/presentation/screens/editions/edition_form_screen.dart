@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/services/auth_service.dart';
-import 'package:guia_start/services/edition_service.dart';
-import 'package:guia_start/utils/async_processor.dart';
+import 'package:guia_start/domain/entities/fair.dart';
+import 'package:guia_start/domain/entities/edition.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/core/utils/async_processor.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:guia_start/domain/usecases/edition/create_edition_usecase.dart';
 
 class EditionFormScreen extends StatefulWidget {
   final Fair fair;
@@ -16,8 +18,6 @@ class EditionFormScreen extends StatefulWidget {
 class _EditionFormScreenState extends State<EditionFormScreen>
     with AsyncProcessor {
   final _formKey = GlobalKey<FormState>();
-  final EditionService _editionService = EditionService();
-  final AuthService _authService = AuthService();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
@@ -64,28 +64,32 @@ class _EditionFormScreenState extends State<EditionFormScreen>
       return;
     }
 
-    final userId = _authService.getCurrentUser()?.uid;
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario no autenticado')),
-      );
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User not authenticated')),
+        );
+      }
       return;
     }
 
-    final request = CreateEditionRequest(
+    final edition = Edition(
+      id: 'id',
       fairId: widget.fair.id,
       name: _nameController.text.trim(),
       location: _locationController.text.trim(),
       initDate: _initDate!,
       endDate: _endDate!,
-      createdBy: userId,
-      status: _status,
+      createdBy: currentUser.uid,
+      createdAt: DateTime.now(),
+      status: EditionStatus.values.firstWhere((e) => e.name == _status),
     );
 
     await executeOperation(
-      operation: _editionService.createEdition(request),
-      successMessage: 'Edición creada exitosamente',
-      onSuccess: () => Navigator.of(context).pop(),
+      operation: di.createEditionUseCase(CreateEditionParams(edition: edition)),
+      successMessage: 'Edition created succesfully!',
+      onSuccess: () => Navigator.pop(context),
     );
   }
 
@@ -165,7 +169,7 @@ class _EditionFormScreenState extends State<EditionFormScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
                 side: BorderSide(
-                  color: colorScheme.tertiary.withOpacity(0.3),
+                  color: colorScheme.tertiary,
                 ),
               ),
             ),
@@ -178,7 +182,7 @@ class _EditionFormScreenState extends State<EditionFormScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
                 side: BorderSide(
-                  color: colorScheme.tertiary.withOpacity(0.3),
+                  color: colorScheme.tertiary,
                 ),
               ),
             ),

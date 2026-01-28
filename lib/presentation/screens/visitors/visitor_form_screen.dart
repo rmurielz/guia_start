@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/visitor_model.dart';
-import 'package:guia_start/repositories/participation_repository.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/domain/usecases/participation/add_visitor_usecase.dart';
 
 class VisitorFormScreen extends StatefulWidget {
   final String participationId;
@@ -13,7 +13,6 @@ class VisitorFormScreen extends StatefulWidget {
 
 class _VisitorFormScreenState extends State<VisitorFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final ParticipationRepository _participationRepo = ParticipationRepository();
 
   final TextEditingController _countController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
@@ -32,33 +31,37 @@ class _VisitorFormScreenState extends State<VisitorFormScreen> {
     setState(() => isSaving = true);
 
     try {
-      final visitor = Visitor(
-        id: '',
-        participationId: '',
-        count: int.parse(_countController.text.trim()),
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-        timestamp: DateTime.now(),
+      final result = await di.addVisitorUseCase(
+        AddVisitorParams(
+          participationId: widget.participationId,
+          count: int.parse(_countController.text.trim()),
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
       );
 
-      final result = await _participationRepo.addVisitor(
-        widget.participationId,
-        visitor,
-      );
+      if (!mounted) return;
 
-      if (result.isSuccess && mounted) {
-        Navigator.of(context);
+      if (result.isSuccess) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Visitor saved succesfully!'),
+        ));
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Visitor saved successfully!')),
+          SnackBar(content: Text('Error ${result.error}')),
         );
       }
     } catch (e) {
-      setState(() => isSaving = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error saving visitor: $e')),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isSaving = false);
       }
     }
   }

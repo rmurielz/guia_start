@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/sale_model.dart';
-import 'package:guia_start/repositories/participation_repository.dart';
+import 'package:guia_start/domain/entities/sale.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/domain/usecases/participation/add_sale_usecase.dart';
 
 class SaleFormScreen extends StatefulWidget {
   final String participationId;
@@ -12,13 +13,13 @@ class SaleFormScreen extends StatefulWidget {
 
 class _SaleFormScreenState extends State<SaleFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final ParticipationRepository _participationRepo = ParticipationRepository();
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _productsController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
-  String _paymentMethod = 'cash';
+  PaymentMethod _paymentMethod =
+      PaymentMethod.cash; // **** String _paymentMethod = 'cash'
   bool _isSaving = false;
 
   @override
@@ -35,32 +36,39 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final sale = Sale(
-          id: '',
-          participationId: '',
+      final result = await di.addSaleUseCase(
+        AddSaleParams(
+          participationId: widget.participationId,
           amount: double.parse(_amountController.text.trim()),
           paymentMethod: _paymentMethod,
           products: _productsController.text.trim(),
           notes: _notesController.text.trim().isEmpty
               ? null
               : _notesController.text.trim(),
-          createdAt: DateTime.now());
+        ),
+      );
 
-      final result =
-          await _participationRepo.addSale(widget.participationId, sale);
+      if (!mounted) return;
 
-      if (result.isSuccess && mounted) {
+      if (result.isSuccess) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Sale saved successfully')),
         );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error ${result.error}')),
+        );
       }
     } catch (e) {
-      setState(() => _isSaving = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error saving sale: $e')),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
       }
     }
   }
@@ -113,35 +121,15 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
             const SizedBox(height: 16),
 
             // Métdodo de pago
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<PaymentMethod>(
               initialValue: _paymentMethod,
-              decoration: const InputDecoration(
-                labelText: 'Payment Method',
-                prefixIcon: Icon(Icons.payment),
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'cash',
-                  child: Text('Cash'),
-                ),
-                DropdownMenuItem(
-                  value: 'credit_card',
-                  child: Text('Credit Card'),
-                ),
-                DropdownMenuItem(
-                  value: 'debit_card',
-                  child: Text('Debit Card'),
-                ),
-                DropdownMenuItem(
-                  value: 'other',
-                  child: Text('Other'),
-                ),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _paymentMethod = value);
-                }
-              },
+              items: PaymentMethod.values
+                  .map((method) => DropdownMenuItem(
+                        value: method,
+                        child: Text(method.displayName),
+                      ))
+                  .toList(),
+              onChanged: (value) => setState(() => _paymentMethod = value!),
             ),
 
             const SizedBox(height: 16),

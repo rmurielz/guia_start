@@ -220,12 +220,12 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
-                color: colorScheme.tertiary.withOpacity(0.3),
+                color: colorScheme.tertiary,
               ),
               borderRadius: BorderRadius.circular(8.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black,
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 )
@@ -263,7 +263,7 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
                 Text(
                   widget.emptyMessage ?? 'No se encontraron resultados',
                   style: TextStyle(
-                    color: colorScheme.tertiary.withOpacity(0.6),
+                    color: colorScheme.tertiary,
                     fontSize: 14,
                   ),
                 ),

@@ -1,141 +1,34 @@
 Listado de rutas de carpetas
-El número de serie del volumen es C435-F22A
+El nmero de serie del volumen es C435-F22A
 C:.
-¦   errores.txt
-¦   estructura.txt
-¦   firebase_options.dart
-¦   main.dart
-¦   
 +---core
-¦   +---constants
-¦   ¦       firestore_collections.dart
-¦   ¦       
-¦   +---di
-¦   ¦       injection_container.dart
-¦   ¦       
-¦   +---error
-¦   ¦       failures.dart
-¦   ¦       
-¦   +---usecases
-¦   ¦       usecase.dart
-¦   ¦       
-¦   +---utils
-¦           async_processor.dart
-¦           result.dart
-¦           validators.dart
-¦           
+|   +---constants
+|   +---di
+|   +---error
+|   +---usecases
+|   +---utils
 +---data
-¦   +---datasources
-¦   ¦       auth_datasource.dart
-¦   ¦       firestore_datasource.dart
-¦   ¦       
-¦   +---models
-¦   ¦       contact_dto.dart
-¦   ¦       edition_dto.dart
-¦   ¦       fair_dto.dart
-¦   ¦       participation_dto.dart
-¦   ¦       sale_dto.dart
-¦   ¦       third_party_dto.dart
-¦   ¦       user_profile_dto.dart
-¦   ¦       visitor_dto.dart
-¦   ¦       
-¦   +---repositories
-¦           auth_repository_impl.dart
-¦           edition_repository_impl.dart
-¦           fair_repository_impl.dart
-¦           participation_repository_impl.dart
-¦           third_party_repository_impl.dart
-¦           user_repository_impl.dart
-¦           
+|   +---datasources
+|   +---models
+|   +---repositories
 +---domain
-¦   +---entities
-¦   ¦       contact.dart
-¦   ¦       edition.dart
-¦   ¦       entity.dart
-¦   ¦       fair.dart
-¦   ¦       participation.dart
-¦   ¦       sale.dart
-¦   ¦       third_party.dart
-¦   ¦       user_profile.dart
-¦   ¦       visitor.dart
-¦   ¦       
-¦   +---repositories
-¦   ¦       auth_repository.dart
-¦   ¦       edition_repository.dart
-¦   ¦       fair_repository.dart
-¦   ¦       participation_repository.dart
-¦   ¦       third_party_repository.dart
-¦   ¦       user_repository.dart
-¦   ¦       
-¦   +---usecases
-¦       +---auth
-¦       ¦       sign_in_usecase.dart
-¦       ¦       sign_out_usecase.dart
-¦       ¦       sign_up_usecase.dart
-¦       ¦       
-¦       +---edition
-¦       ¦       create_edition_usecase.dart
-¦       ¦       get_editions_by_fair_usecase.dart
-¦       ¦       validate_edition_dates_usecase.dart
-¦       ¦       
-¦       +---fair
-¦       ¦       create_fair_usecase.dart
-¦       ¦       delete_fair_usecase.dart
-¦       ¦       get_all_fair_usecase.dart
-¦       ¦       get_fair_usecase.dart
-¦       ¦       get_fair_with_organizer_usecase.dart
-¦       ¦       search_fairs_usecase.dart
-¦       ¦       search_fairs_with_organizer_usecase.dart
-¦       ¦       update_fair_usecase.dart
-¦       ¦       
-¦       +---participation
-¦       ¦       add_contact_usecase.dart
-¦       ¦       add_sale_usecase.dart
-¦       ¦       add_visitor_usecase.dart
-¦       ¦       calculate_roi_usecase.dart
-¦       ¦       create_participation_usecase.dart
-¦       ¦       get_participations_stats_usecase.dart
-¦       ¦       get_user_participations_usecase.dart
-¦       ¦       
-¦       +---third_party
-¦               create_third_party_usecase.dart
-¦               search_third_party_usecase.dart
-¦               
+|   +---entities
+|   +---repositories
+|   +---usecases
+|       +---auth
+|       +---edition
+|       +---fair
+|       +---participation
+|       +---third_party
 +---presentation
     +---providers
-    ¦       app_state_provider.dart
-    ¦       
     +---screens
-    ¦   +---auth
-    ¦   ¦       auth_wrapper.dart
-    ¦   ¦       login_screen.dart
-    ¦   ¦       register_screen.dart
-    ¦   ¦       
-    ¦   +---contacts
-    ¦   ¦       contact_form_screen.dart
-    ¦   ¦       
-    ¦   +---editions
-    ¦   ¦       edition_form_screen.dart
-    ¦   ¦       edition_list_screen.dart
-    ¦   ¦       
-    ¦   +---fairs
-    ¦   ¦       fair_form_screen.dart
-    ¦   ¦       fair_list_screen.dart
-    ¦   ¦       fair_search_screen.dart
-    ¦   ¦       
-    ¦   +---home
-    ¦   ¦       home_screen.dart
-    ¦   ¦       
-    ¦   +---participations
-    ¦   ¦       participation_detail_screen.dart
-    ¦   ¦       participation_form_screen.dart
-    ¦   ¦       
-    ¦   +---sales
-    ¦   ¦       sale_form_screen.dart
-    ¦   ¦       
-    ¦   +---visitors
-    ¦           visitor_form_screen.dart
-    ¦           
+    |   +---auth
+    |   +---contacts
+    |   +---editions
+    |   +---fairs
+    |   +---home
+    |   +---participations
+    |   +---sales
+    |   +---visitors
     +---widgets
-            searchable_dropdown.dart
-            

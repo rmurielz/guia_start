@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/models/edition_model.dart';
-import 'package:guia_start/services/participation_service.dart';
-import 'package:guia_start/services/auth_service.dart';
-import 'package:guia_start/utils/async_processor.dart';
+import 'package:guia_start/domain/entities/fair.dart';
+import 'package:guia_start/domain/entities/edition.dart';
+import 'package:guia_start/domain/entities/participation.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/core/utils/async_processor.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:guia_start/domain/usecases/participation/create_participation_usecase.dart';
 
 class ParticipationFormScreen extends StatefulWidget {
   final Fair fair;
@@ -23,8 +25,6 @@ class ParticipationFormScreen extends StatefulWidget {
 class _ParticipationFormScreenState extends State<ParticipationFormScreen>
     with AsyncProcessor {
   final _formKey = GlobalKey<FormState>();
-  final ParticipationService _participationService = ParticipationService();
-  final AuthService _authService = AuthService();
 
   final TextEditingController _boothController = TextEditingController();
   final TextEditingController _costController = TextEditingController();
@@ -39,26 +39,33 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen>
   Future<void> _saveParticipation() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final userId = _authService.getCurrentUser()?.uid;
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario no autenticado')),
-      );
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User not authenticated')),
+        );
+      }
       return;
     }
-    final request = CreateParticipationRequest(
-        userId: userId,
-        fairId: widget.fair.id,
-        editionId: widget.edition.id,
-        boothNumber: _boothController.text.trim().isEmpty
-            ? null
-            : _boothController.text.trim(),
-        particpationCost: double.parse(_costController.text.trim()));
+
+    final participation = Participation(
+      id: '',
+      userId: currentUser.uid,
+      fairId: widget.fair.id,
+      editionId: widget.edition.id,
+      boothNumber: _boothController.text.trim().isEmpty
+          ? null
+          : _boothController.text.trim(),
+      participationCost: double.parse(_costController.text.trim()),
+      createdAt: DateTime.now(),
+    );
 
     await executeOperation(
-      operation: _participationService.createParticipation(request),
-      successMessage: 'Participación registrada con éxito',
-      onSuccess: () => Navigator.of(context).popUntil((route) => route.isFirst),
+      operation: di.createParticipationUseCase(
+          CreateParticipationParams(participation: participation)),
+      successMessage: 'Participation created succesfully!',
+      onSuccess: () => Navigator.pop(context),
     );
   }
 
@@ -86,7 +93,7 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen>
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -105,7 +112,7 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen>
                     widget.edition.name,
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorScheme.tertiary.withOpacity(0.7),
+                      color: colorScheme.tertiary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -113,7 +120,7 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen>
                     children: [
                       Icon(
                         Icons.location_on,
-                        color: colorScheme.tertiary.withOpacity(0.7),
+                        color: colorScheme.tertiary,
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -121,7 +128,7 @@ class _ParticipationFormScreenState extends State<ParticipationFormScreen>
                         widget.edition.location,
                         style: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.tertiary.withOpacity(0.7),
+                          color: colorScheme.tertiary,
                         ),
                       ),
                     ],

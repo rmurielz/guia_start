@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/screens/auth/register_screen.dart';
-import 'package:guia_start/services/auth_service.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/presentation/screens/auth/register_screen.dart';
+import 'package:guia_start/domain/usecases/auth/sign_in_usecase.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,11 +11,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final AuthService _authService = AuthService();
+  late final SignInUseCase _signInUseCase = di.signInUseCase;
+  bool _isLoading = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscuredPassword = true;
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -36,23 +37,19 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     setState(() => _isLoading = true);
 
-    try {
-      final user = await _authService.signIn(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+    final result = await _signInUseCase(
+      SignInParams(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim()),
+    );
+
+    setState(() => _isLoading = false);
+
+    if (result.isSuccess) {
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.error ?? 'Error al iniciar sesión')),
       );
-      if (mounted && user != null) {
-        _showSnackBar('Bienvenido!');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showSnackBar('Error: ${e.toString()}', isError: true);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        _clearFields();
-      }
     }
   }
 

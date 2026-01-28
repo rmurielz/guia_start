@@ -3,10 +3,10 @@ import 'package:guia_start/core/utils/result.dart';
 import 'package:guia_start/domain/entities/fair.dart';
 import 'package:guia_start/domain/repositories/fair_repository.dart';
 
-class GetAllFairUseCase implements UseCase<List<Fair>, NoParams> {
+class GetAllFairsUseCase implements UseCase<List<Fair>, NoParams> {
   final FairRepository _repository;
 
-  GetAllFairUseCase(this._repository);
+  GetAllFairsUseCase(this._repository);
 
   @override
   Future<Result<List<Fair>>> call(NoParams params) async {

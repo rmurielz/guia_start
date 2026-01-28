@@ -1,4 +1,5 @@
 /// Representa fallos en el dominio (sin depender de excepciones esppacíficas)
+library;
 
 abstract class Failure {
   final String message;

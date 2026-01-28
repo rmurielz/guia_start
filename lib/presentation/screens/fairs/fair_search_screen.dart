@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:guia_start/models/fair_model.dart';
-import 'package:guia_start/services/fair_service.dart';
-import 'package:guia_start/screens/fairs/fair_form_screen.dart';
-import 'package:guia_start/screens/editions/edition_list_screen.dart';
+import 'package:guia_start/domain/entities/fair.dart';
+import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/presentation/screens/fairs/fair_form_screen.dart';
+import 'package:guia_start/presentation/screens/editions/edition_list_screen.dart';
+import 'package:guia_start/domain/usecases/fair/get_fair_with_organizer_usecase.dart';
 
 class FairSearchScreen extends StatefulWidget {
   const FairSearchScreen({super.key});
@@ -12,7 +13,6 @@ class FairSearchScreen extends StatefulWidget {
 }
 
 class _FairSearchScreenState extends State<FairSearchScreen> {
-  final FairService _fairService = FairService();
   final TextEditingController _searchController = TextEditingController();
 
   List<FairWithOrganizer> _searchResults = [];
@@ -39,9 +39,7 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
       _hasSearched = true;
     });
 
-    // Llamamos al método del servicio que armamos
-
-    final result = await _fairService.searchFairWithOrganizer(query);
+    final result = await di.searchFairsWithOrganizerUseCase(query);
     if (mounted) {
       setState(() {
         _isSearching = false;
@@ -68,21 +66,30 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: colorScheme.primary,
+        iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
           'Buscar Ferias',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Column(
         children: [
           // Buscador
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(color: colorScheme.tertiary),
               decoration: InputDecoration(
-                hintText: 'Nombre de la feria',
+                hintText: 'Buscar por nombre de feria...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -94,34 +101,66 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
                       )
                     : null,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onSubmitted: (_) => _searchFairs(),
+              onChanged: (value) => _searchFairs(),
             ),
           ),
-          // Resultados de búsqueda
+
+          // Resultados
           Expanded(
             child: _isSearching
                 ? const Center(child: CircularProgressIndicator())
-                : _searchResults.isEmpty
-                    ? _buildEmptyState()
+                : _hasSearched && _searchResults.isEmpty
+                    ? const Center(
+                        child: Text('No se encontraron ferias'),
+                      )
                     : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: _searchResults.length,
                         itemBuilder: (context, index) {
-                          final item = _searchResults[index];
+                          final fairWithOrganizer = _searchResults[index];
                           return Card(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                            elevation: 2,
+                            margin: const EdgeInsets.only(bottom: 12),
                             child: ListTile(
-                              title: Text(item.fair.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                              subtitle:
-                                  Text('Organiza: ${item.organizer.name}}'),
-                              trailing:
-                                  const Icon(Icons.arrow_forward_ios, size: 16),
-                              onTap: () => _selectFair(item.fair),
+                              contentPadding: const EdgeInsets.all(12),
+                              title: Text(
+                                fairWithOrganizer.fair.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    fairWithOrganizer.fair.description,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.business,
+                                          size: 14, color: Colors.grey),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        fairWithOrganizer.organizer.name,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () => _selectFair(fairWithOrganizer.fair),
                             ),
                           );
                         },
@@ -129,27 +168,11 @@ class _FairSearchScreenState extends State<FairSearchScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: ElevatedButton.icon(
-            onPressed: _createNewFair,
-            icon: const Icon(Icons.add),
-            label: const Text('Crear nueva feria'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-        ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: colorScheme.primary,
+        onPressed: _createNewFair,
+        child: const Icon(Icons.add, color: Colors.black),
       ),
     );
-  }
-
-  Widget _buildEmptyState() {
-    if (!_hasSearched) {
-      return const Center(
-          child: Text('Escribe el nombre de una feria para comernzar'));
-    }
-    return const Center(child: Text('No se encontraron resultados'));
   }
 }
