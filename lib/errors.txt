@@ -1,0 +1,6 @@
+Analyzing lib...                                                
+
+   info - The type parameter name 'Type' matches a visible type name - core\usecases\usecase.dart:8:24 - avoid_types_as_parameter_names
+   info - Angle brackets will be interpreted as HTML - data\datasources\firestore_datasource.dart:9:18 - unintended_html_in_doc_comment
+   info - Don't use 'BuildContext's across async gaps - presentation\screens\auth\login_screen.dart:50:28 - use_build_context_synchronously
+

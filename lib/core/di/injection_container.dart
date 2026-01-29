@@ -41,6 +41,9 @@ import 'package:guia_start/domain/usecases/participation/create_participation_us
 import 'package:guia_start/domain/usecases/participation/get_participations_stats_usecase.dart';
 import 'package:guia_start/domain/usecases/participation/get_user_participations_usecase.dart';
 
+// Dashboard UseCases
+import 'package:guia_start/domain/usecases/dashboard/get_dashboard_stats_usecase.dart';
+
 // ThirdParty UseCases
 import 'package:guia_start/domain/usecases/third_party/create_third_party_usecase.dart';
 import 'package:guia_start/domain/usecases/third_party/search_third_party_usecase.dart';
@@ -160,6 +163,12 @@ class InjectionContainer {
     participationRepository: participationRepository,
     editionRepository: editionRepository,
     fairRepository: fairRepository,
+  );
+
+  late final GetDashboardStatsUseCase getDashboardStatsUseCase =
+      GetDashboardStatsUseCase(
+    participationRepository: participationRepository,
+    editionRepository: editionRepository,
   );
 
   late final GetParticipationsStatsUseCase getParticipationsStatsUseCase =

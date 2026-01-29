@@ -1,34 +1,35 @@
 Listado de rutas de carpetas
-El nmero de serie del volumen es C435-F22A
+El número de serie del volumen es C435-F22A
 C:.
 +---core
-|   +---constants
-|   +---di
-|   +---error
-|   +---usecases
-|   +---utils
+¦   +---constants
+¦   +---di
+¦   +---error
+¦   +---usecases
+¦   +---utils
 +---data
-|   +---datasources
-|   +---models
-|   +---repositories
+¦   +---datasources
+¦   +---models
+¦   +---repositories
 +---domain
-|   +---entities
-|   +---repositories
-|   +---usecases
-|       +---auth
-|       +---edition
-|       +---fair
-|       +---participation
-|       +---third_party
+¦   +---entities
+¦   +---repositories
+¦   +---usecases
+¦       +---auth
+¦       +---dashboard
+¦       +---edition
+¦       +---fair
+¦       +---participation
+¦       +---third_party
 +---presentation
     +---providers
     +---screens
-    |   +---auth
-    |   +---contacts
-    |   +---editions
-    |   +---fairs
-    |   +---home
-    |   +---participations
-    |   +---sales
-    |   +---visitors
+    ¦   +---auth
+    ¦   +---contacts
+    ¦   +---editions
+    ¦   +---fairs
+    ¦   +---home
+    ¦   +---participations
+    ¦   +---sales
+    ¦   +---visitors
     +---widgets
