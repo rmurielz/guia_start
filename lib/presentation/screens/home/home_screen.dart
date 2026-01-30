@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:guia_start/core/di/injection_container.dart';
+import 'package:guia_start/core/usecases/usecase.dart';
 import 'package:guia_start/domain/usecases/dashboard/get_dashboard_stats_usecase.dart';
 import 'package:guia_start/presentation/screens/fairs/fair_list_screen.dart';
 import 'package:guia_start/presentation/screens/fairs/fair_search_screen.dart';
@@ -39,9 +40,41 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _handleLogout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cerrar sesión'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      final result = await di.signOutUseCase(NoParams());
+
+      if (result.isError && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.error ?? 'Error al cerrar sesión')),
+        );
+      }
+      // AuthWrapper detectará el cambio automáticamente
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final currentUser = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -60,6 +93,52 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.refresh, color: Colors.black),
             onPressed: _loadStats,
             tooltip: 'Actualizar',
+          ),
+          PopupMenuButton<String>(
+            icon:
+                const Icon(Icons.account_circle, color: Colors.black, size: 28),
+            tooltip: 'Perfil',
+            onSelected: (value) {
+              if (value == 'logout') {
+                _handleLogout();
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                enabled: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      currentUser?.email ?? 'Usuario',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      currentUser?.displayName ?? '',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, size: 20),
+                    SizedBox(width: 12),
+                    Text('Cerrar sesión'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -177,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.black,
+            color: Colors.black.withOpacity(0.7),
           ),
         ),
       ],
@@ -261,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: iconColor,
+                  color: iconColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: iconColor, size: 32),
@@ -284,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle,
                       style: TextStyle(
                         fontSize: 14,
-                        color: colorScheme.tertiary,
+                        color: colorScheme.tertiary.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -292,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Icon(
                 Icons.chevron_right,
-                color: colorScheme.tertiary,
+                color: colorScheme.tertiary.withOpacity(0.3),
               ),
             ],
           ),
@@ -309,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(
             Icons.event_available,
             size: 80,
-            color: colorScheme.primary,
+            color: colorScheme.primary.withOpacity(0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -326,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'Busca ferias que se ajusten a tu negocio y participa para hacer crecer tus ventas',
             style: TextStyle(
               fontSize: 14,
-              color: colorScheme.tertiary,
+              color: colorScheme.tertiary.withOpacity(0.6),
             ),
             textAlign: TextAlign.center,
           ),
