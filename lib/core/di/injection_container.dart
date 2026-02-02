@@ -48,6 +48,8 @@ import 'package:guia_start/domain/usecases/dashboard/get_dashboard_stats_usecase
 import 'package:guia_start/domain/usecases/third_party/create_third_party_usecase.dart';
 import 'package:guia_start/domain/usecases/third_party/search_third_party_usecase.dart';
 
+import 'package:guia_start/domain/usecases/dashboard/get_active_fair_usecase.dart';
+
 /// Dependency Injection Container
 class InjectionContainer {
   static final InjectionContainer _instance = InjectionContainer._internal();
@@ -180,6 +182,11 @@ class InjectionContainer {
     fairRepository: fairRepository,
     editionRepository: editionRepository,
   );
+
+  late final GetActiveFairUseCase getActiveFairUseCase = GetActiveFairUseCase(
+      participationRepository: participationRepository,
+      editionRepository: editionRepository,
+      fairRepository: fairRepository);
 
   // ===== USECASES - THIRD PARTY =====
 
